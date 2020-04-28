@@ -1,0 +1,14 @@
+{
+  "name": "unamed_musicapp",
+  "version": "1.0.0",
+  "description": "Music visualizer for people to jam together",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Maverick",
+  "license": "ISC",
+  "dependencies": {
+    "tone": "^13.8.25"
+  }
+}
