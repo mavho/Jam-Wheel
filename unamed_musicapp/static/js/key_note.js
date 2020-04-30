@@ -6,21 +6,24 @@ class KeyNote{
 
     show is continusously called
     */
-
-
-    constructor (x1,y1,x2,y2,x3,y3, color){
+    constructor (x1,y1,x2,y2,x3,y3, in_color,note){
         this.x1 = x1;
         this.y1 = y1;
         this.x2 = x2;
         this.y2 = y2;
         this.x3 = x3;
         this.y3 = y3;
-        this.color = color;
-        this.temp_color = color;
+        this.color = in_color;
+        this.curr_color = this.color;
+        this.note = note;
         this.brightness = 0;
-        this.noiseSynth = new Tone.NoiseSynth().toMaster();
+        this.noiseSynth = new Tone.DuoSynth().toMaster();
+        this.vibratoAmount = 12;
     }   
 
+    trigger_sound(){
+        this.noiseSynth.triggerAttack(this.note);
+    }
     inTriangle(mouX,mouY){
         var A = 1/2 * (-this.y2 * this.x3 + this.y1 * (-this.x2+ this.x3) + this.x1 * (this.y2 - this.y3) + this.x2 * this.y3);
         var sign = A < 0 ? -1 : 1;
@@ -31,24 +34,25 @@ class KeyNote{
         return s > 0 && t > 0 && (s + t) < 2 * A * sign;
     }
 
-    clicked(mouX,mouY){
-        if(this.inTriangle(mouX,mouY)){
-            let to = color(72,61,139)
-            this.temp_color = this.color;
-            this.color = lerpColor(color(this.color), to, 0.35);
-            this.noiseSynth.triggerAttackRelease("8n");
-            return true;
-        }else{
-            return false;
-        }
+    clicked(vibrato){
+        let color_shade = lerpColor(color(this.color), color(72,61,139), 0.35);
+        this.curr_color = color_shade;
+        this.trigger_sound();
     }
-    released(mouX,mouY){
-        //if(this.inTriangle(mouX,mouY)){
-        this.color = this.temp_color;
-        //}
+
+    dragged(vibrato){
+        this.vibratoAmount = vibrato * 3;
+        let color_shade = lerpColor(color(this.color), color(72,61,139), 0.35);
+        this.curr_color = color_shade;
+        this.trigger_sound();
     }
+    released(){
+        this.curr_color = this.color;
+        this.noiseSynth.triggerRelease();
+    }
+
     show(){
-        fill(color(this.color));
+        fill(color(this.curr_color));
         triangle(this.x1,this.y1,this.x2,this.y2,this.x3,this.y3)
     }
 }
