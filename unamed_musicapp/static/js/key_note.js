@@ -21,7 +21,7 @@ class KeyNote{
     }   
 
     trigger_sound(){
-        this.noiseSynth.triggerAttack(this.note);
+        this.noiseSynth.triggerAttack(this.note,"104i");
     }
     inTriangle(mouX,mouY){
         var A = 1/2 * (-this.y2 * this.x3 + this.y1 * (-this.x2+ this.x3) + this.x1 * (this.y2 - this.y3) + this.x2 * this.y3);
@@ -43,11 +43,11 @@ class KeyNote{
         this.vibratoAmount = vibrato*10;
         let color_shade = lerpColor(color(this.orig_color), color(72,61,139), 0.35);
         this.curr_color = color_shade;
-        this.trigger_sound();
+        //this.trigger_sound();
     }
     released(){
         this.curr_color = this.orig_color;
-        this.noiseSynth.triggerRelease();
+        this.noiseSynth.triggerRelease(this.note);
     }
 
     show(){
