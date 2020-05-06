@@ -4,8 +4,13 @@ hex_color_blue = ["#0016E5","#0229DB","#053AD2","#0749C9","#0956BF","#0B61B6","#
 
 C_MAJ_SCALE =["C4","D4","E4","F4","G4","A4","B4","C5","D5","E5"]
 
+OCTAVE_LOWER=["C2","D2","E2","F2","G2","A2","B2","C3","D3","E3"]
+
+
 //save the state of each key.
-let keys = [];
+var keys = [];
+
+var curr_type = "SYNTH";
 
 var synth = new Tone.MembraneSynth().toMaster()
 function setup(){
@@ -26,22 +31,19 @@ function setup(){
 
     cir_centerX= can_width/2;
     cir_centerY = can_height/2;
+    updateKeys(curr_type);
 
-    let counter = 0 
-    //draw the triangle circle
-    for (let angle=270;angle<630;angle=angle+pointAngle){
-        x = cos(radians(angle)) * radius; //convert angle to radians for x and y coordinates
-        y = sin(radians(angle)) * radius;
-
-        let temp = angle + pointAngle;
-        var tri = new KeyNote(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,((cos(radians(temp)) * radius) + cir_centerX),(sin(radians(temp)) * radius) + cir_centerY, hex_color_blue[counter],C_MAJ_SCALE[counter]);
-        counter++;
-        keys.push(tri);
-    }
-    document.querySelector('button').addEventListener('click', async () => {
+    document.querySelector('#toggle').addEventListener('click', async () => {
         await Tone.start()
         console.log('audio is ready')
         Tone.Transport.toggle();
+    });
+    document.querySelector('#FAT').addEventListener('click', async() =>{
+        console.log('hello')
+        updateKeys('FAT');
+    });
+    document.querySelector('#SYNTH').addEventListener('click', async() =>{
+        updateKeys('SYNTH');
     });
     //create a loop
     var loop = new Tone.Loop(function(time){
@@ -54,6 +56,35 @@ function setup(){
     Tone.Transport.loop = true
     //Start the loop
     Tone.Transport.toggle();
+}
+function updateKeys(type){
+    for(let i = 0; i< keys.length;i++){
+        keys[i].noiseSynth.dispose();
+    } 
+    keys = [];
+    let counter = 0 
+    //draw the triangle circle
+    for (let angle=270;angle<630;angle=angle+pointAngle){
+        x = cos(radians(angle)) * radius; //convert angle to radians for x and y coordinates
+        y = sin(radians(angle)) * radius;
+
+        let temp = angle + pointAngle;
+        switch(type){
+            case 'FAT':
+                var tri = new FatOscillator(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
+                    ((cos(radians(temp)) * radius) + cir_centerX),(sin(radians(temp)) * radius) + cir_centerY,
+                    hex_color_blue[counter],OCTAVE_LOWER[counter]);
+                keys.push(tri);
+                break;
+            case 'SYNTH':
+                var tri = new SimpleSynth(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
+                    ((cos(radians(temp)) * radius) + cir_centerX),(sin(radians(temp)) * radius) + cir_centerY,
+                    hex_color_blue[counter],OCTAVE_LOWER[counter]);
+                keys.push(tri);
+                break;
+        }
+        counter++;
+    }
 }
 
 //Draw the shapes continuously
@@ -94,9 +125,9 @@ function mouseDragged(event){
         if(key.inTriangle(mouseX,mouseY)){
             if(key !== pressed_key){
                 pressed_key.released();
-            }
-            //Key has moved from the original
-            pressed_key = key;
+                pressed_key = key;
+                pressed_key.clicked();
+            }            //Key has moved from the original
             pressed_key.dragged(mouseX);
         }
     }
