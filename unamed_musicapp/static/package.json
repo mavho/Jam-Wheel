@@ -9,6 +9,9 @@
   "author": "Maverick",
   "license": "ISC",
   "dependencies": {
-    "tone": "^13.8.25"
+    "bufferutil": "^4.0.1",
+    "socket.io": "^2.3.0",
+    "tone": "^13.8.25",
+    "utf-8-validate": "^5.0.2"
   }
 }

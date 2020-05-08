@@ -17,8 +17,9 @@ class FatOscillator extends KeyNote{
                 "sustain": 0.5,
                 "release": 0.4,
                 "attackCurve": "exponential"
-            },
+            }
         }).toMaster();
+
     }
     trigger_sound(){
         this.noiseSynth.triggerAttack(this.note);
@@ -30,7 +31,7 @@ class FatOscillator extends KeyNote{
 
     released(){
         this.noiseSynth.triggerRelease();
-        //this.noiseSynth.releaseAll();
+
         super.released();
     }
 }

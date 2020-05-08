@@ -7,6 +7,13 @@
         <link rel="stylesheet" href="static/css/bulma.css"></link>
         <script src="https://kit.fontawesome.com/1039dec531.js" crossorigin="anonymous"></script>
         <script src="{{ url_for('static', filename='node_modules/tone/build/Tone.js') }}"></script>
+        <script src="{{ url_for('static', filename='node_modules/socket.io-client/dist/socket.io.js') }}"></script>
+        <script type="text/javascript" charset="utf-8">
+            var socket = io.connect('http://'+document.domain + ':' + location.port +'/test');
+            socket.on('my response',function(){
+                socket.emit('my event', {data: 'Hi!'});
+            });
+        </script>
         <script src="{{ url_for('static', filename='js/p5/p5.js') }}"></script>
 
     </head>
