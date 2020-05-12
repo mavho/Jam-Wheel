@@ -115,6 +115,7 @@ function mousePressed(){
         if(key.inTriangle(mouseX,mouseY)){
             key.clicked();
             pressed_key = key;
+            socket.emit('press key', {'note': pressed_key.note, 'channel':room});
         }
     }
     return false;

@@ -1,7 +1,13 @@
-<div id="sketch" class="box is-bordered">
+{% extends "_layouts/index.html" %}
 
-</div>
+{% block content %}
+<button class="button" id="room1">Room1</button>
+<button class="button" id="room2">Room2</button>
+
+
+<div id="sketch" class="box is-bordered"></div>
 
 <button class="button" id="toggle">Play!</button>
 <button class="button" id="FAT">FAT</button>
 <button class="button" id="SYNTH">SYNTH</button>
+{% endblock %}
