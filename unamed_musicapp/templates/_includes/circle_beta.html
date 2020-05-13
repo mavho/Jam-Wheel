@@ -1,13 +1,19 @@
 {% extends "_layouts/index.html" %}
+{% block head %}
+    <script src="{{ url_for('static', filename='node_modules/tone/build/Tone.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/p5/p5.js') }}"></script>
+{% endblock %}
 
 {% block content %}
-<button class="button" id="room1">Room1</button>
-<button class="button" id="room2">Room2</button>
-
-
 <div id="sketch" class="box is-bordered"></div>
 
 <button class="button" id="toggle">Play!</button>
 <button class="button" id="FAT">FAT</button>
 <button class="button" id="SYNTH">SYNTH</button>
+{% endblock %}
+
+{% block scripts %}
+    <script src="static/js/key_note.js"></script>
+    <script src="static/js/notes.js"></script>
+    <script src="static/js/manage_shapes.js"></script>
 {% endblock %}

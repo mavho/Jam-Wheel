@@ -1,8 +1,22 @@
 {% extends "_layouts/index.html" %}
-<p class="control">
-    <input class="input" type="text" placeholder="Room Name"> </input>
-    <!-- Maybe when they submit it, we check the room's length-->
-</p>
+{% block head %}
+    <title>Unnamed app</title>
+    <link rel="stylesheet" href="static/css/bulma.css"></link>
+    <script src="https://kit.fontawesome.com/1039dec531.js" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='node_modules/socket.io-client/dist/socket.io.js') }}"></script>
+    <script src="{{ url_for('static', filename='node_modules/jquery/dist/jquery.min.js') }}"></script>
+{% endblock %}
+
 {% block content %}
 
+<p class="control">
+    <input id="room_input" class="input" type="text" placeholder="Room Name"> </input>
+    <input id="username_input" class="input" type="text" placeholder="UserName"> </input>
+</p>
+<button id="room_join" class="button">Play!</button>
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="static/js/room_handler.js"></script>
 {% endblock %}

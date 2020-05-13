@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session,url_for
 from flask_socketio import SocketIO,emit, join_room, leave_room, rooms
 from flask_sqlalchemy import SQLAlchemy
 import sys,requests
@@ -17,42 +17,37 @@ class Rooms(db.Model):
 
 @app.route('/')
 def index():
+    return render_template('_includes/landing_page.html'), 200
+
+@app.route('/game')
+def game():
     return render_template('_includes/circle_beta.html'), 200
 
 
 @socketio.on('join room', namespace='/test_room')
 def join(payload):
-    print(request.sid, file=sys.stderr)
-    ### we randomly assign them to a room.
-    open_room = Rooms.query.filter(Rooms.count < 4).first()
-    ### currently just put them in the first possible room
-    room = open_room.name 
-    session['CURRENT_ROOM'] = open_room.name
+    room = payload['room'] 
+    user_name = payload['user_name']
+    print(request.sid + ' joined ' + room, file=sys.stderr)
     join_room(room)
-    open_room.count += 1
-    db.session.commit()
-    emit('join room', {'room':room})
+    emit('join room', {'room':room,'user':user_name, 'url': url_for('game')})
 
 @socketio.on('press key',namespace='/test_room')
 def key_handler(payload):
     room = payload['channel']
+    user_name = payload['user_name']
     note = payload['note']
-    print(note,file=sys.stderr)
-    emit('press key',{'note':note, 'room':room}, room=room)
+    emit('press key',{'note':note, 'room':room, 'user_name':user_name}, room=room)
 
 
 @socketio.on('connect', namespace='/test_room')
 def test_connect():
-    print('connected',file=sys.stderr)
+    print(request.sid + ' connected',file=sys.stderr)
     emit('my response', {'data': 'Connected'})
 
 @socketio.on('disconnect', namespace='/test_room')
 def test_disconnect():
-    print('Client disconnected', file=sys.stderr)
-    if not session.get('CURRENT_ROOM') is None:
-        room = Rooms.query.filter_by(name=session['CURRENT_ROOM']).first()
-        room.count -= 1
-        db.session.commit()
+    print(request.sid + ' Client disconnected', file=sys.stderr)
 
 if __name__ == '__main__':
     app.debug=True

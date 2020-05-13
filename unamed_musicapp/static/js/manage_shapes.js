@@ -12,6 +12,23 @@ var keys = [];
 
 var curr_type = "SYNTH";
 
+var testsynth =  new Tone.Synth({
+    "oscillator":{
+        "type": "sine",
+        "partialCount": 5, 
+    },
+    "envelope":{
+        "attack":0.01,
+        "decay": 1.2,
+        "release": 1.2,
+        "attackCurve": "exponential"
+    }
+    }).toMaster();
+
+socket.on('press key', function(msg){
+    console.log(msg);
+    testsynth.triggerAttackRelease("C5",0.5);
+})
 var synth = new Tone.MembraneSynth().toMaster()
 function setup(){
     // Set up canvas
@@ -115,7 +132,7 @@ function mousePressed(){
         if(key.inTriangle(mouseX,mouseY)){
             key.clicked();
             pressed_key = key;
-            socket.emit('press key', {'note': pressed_key.note, 'channel':room});
+            socket.emit('press key', {'note': pressed_key.note, 'channel':room_name, 'user_name':user_name});
         }
     }
     return false;
