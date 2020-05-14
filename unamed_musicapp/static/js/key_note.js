@@ -14,6 +14,7 @@ class KeyNote{
         this.y3 = y3;
         this.orig_color = in_color;
         this.curr_color = this.orig_color;
+        this.click = false;
     }   
 
     inTriangle(mouX,mouY){
@@ -29,6 +30,7 @@ class KeyNote{
     clicked(){
         let color_shade = lerpColor(color(this.orig_color), color(72,61,139), 0.35);
         this.curr_color = color_shade;
+        this.click =true;
     }
 
     dragged(vibrato){
@@ -37,6 +39,7 @@ class KeyNote{
         this.curr_color = color_shade;
     }
     released(){
+        this.click=false;
         this.curr_color = this.orig_color;
     }
 

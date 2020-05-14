@@ -1,3 +1,7 @@
+/**
+ * This is the main file that handles the canvas UI as well as
+ * the P5 logic interacting with Tone.js
+ */
 hex_color_wheel = ["#E50018","#E1008E","#BA00DD","#4400D9","#002CD5","#009AD2","#00CE98","#00CA2A","#3EC600","#A3C200"]
 
 hex_color_blue = ["#0016E5","#0229DB","#053AD2","#0749C9","#0956BF","#0B61B6","#0C6AAD","#0E71A3","#0F779A","#107A91"]
@@ -8,26 +12,28 @@ OCTAVE_LOWER=["C2","D2","E2","F2","G2","A2","B2","C3","D3","E3"]
 
 
 //save the state of each key.
+/*These vars are very important */
 var keys = [];
-
 var curr_type = "SYNTH";
+var curr_note = "";
 
-var testsynth =  new Tone.Synth({
-    "oscillator":{
+var testsynth = new Tone.Synth({
+    "oscillator": {
         "type": "sine",
-        "partialCount": 5, 
+        "partialCount": 5,
     },
-    "envelope":{
-        "attack":0.01,
+    "envelope": {
+        "attack": 0.01,
         "decay": 1.2,
         "release": 1.2,
         "attackCurve": "exponential"
     }
-    }).toMaster();
+}).toMaster();
+
 
 socket.on('press key', function(msg){
     console.log(msg);
-    testsynth.triggerAttackRelease("C5",0.5);
+    //testsynth.triggerAttackRelease("C5",0.5);
 })
 var synth = new Tone.MembraneSynth().toMaster()
 function setup(){
@@ -65,7 +71,7 @@ function setup(){
     //create a loop
     var loop = new Tone.Loop(function(time){
         synth.triggerAttackRelease("C1", "8t", time)
-    }, "4n")
+    }, "4n");
     
     //play the loop between 0-2m on the transport
     loop.start(0).stop('1m')
@@ -75,9 +81,6 @@ function setup(){
     Tone.Transport.toggle();
 }
 function updateKeys(type){
-    for(let i = 0; i< keys.length;i++){
-        keys[i].noiseSynth.dispose();
-    } 
     keys = [];
     let counter = 0 
     //draw the triangle circle
@@ -107,11 +110,10 @@ function updateKeys(type){
 //Draw the shapes continuously
 function draw(){
     background("#003680");
-    var r = 150;
+    let r = 150;
     noFill();
     stroke(197,185,166);
     strokeWeight(5);
-    //let b = pressed_key.noiseSynth.voice0.envelope.value;
     let b = synth.envelope.value;
     for (var i = 0; i < 3; i++){
         x2 = (r + b*200)*tan(2*PI/b);
@@ -131,6 +133,7 @@ function mousePressed(){
     for(let key of keys){
         if(key.inTriangle(mouseX,mouseY)){
             key.clicked();
+            curr_note = key.note;
             pressed_key = key;
             socket.emit('press key', {'note': pressed_key.note, 'channel':room_name, 'user_name':user_name});
         }
@@ -138,13 +141,14 @@ function mousePressed(){
     return false;
 }
 
-function mouseDragged(event){
+function mouseDragged(){
     for(let key of keys){
         if(key.inTriangle(mouseX,mouseY)){
             if(key !== pressed_key){
                 pressed_key.released();
                 pressed_key = key;
                 pressed_key.clicked();
+                curr_note = pressed_key.note;
             }            //Key has moved from the original
             pressed_key.dragged(mouseX);
         }

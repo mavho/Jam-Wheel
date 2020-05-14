@@ -1,4 +1,8 @@
 ##For sqlalch
+
+# You hackers out there, I'm going to change this! 
+# What are you thinking? 
+# Why haven't I deleted this from the repo yet? IDKKKKK
 import os 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
