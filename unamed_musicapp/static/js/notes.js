@@ -31,6 +31,7 @@ var sawtooth = new Tone.Synth({
 class FatOscillator extends KeyNote{
     constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
         super(x1,y1,x2,y2,x3,y3, in_color);
+        this.type = "fatsawtooth";
         this.note = note;
         this.loop = new Tone.Loop(function(time){
             sawtooth.triggerAttackRelease(curr_note, "8n.", time)
@@ -56,6 +57,7 @@ class FatOscillator extends KeyNote{
 class SimpleSynth extends KeyNote{
     constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
         super(x1,y1,x2,y2,x3,y3, in_color);
+        this.type = "simplesynth";
         this.note = note;
         this.loop = new Tone.Loop(function(time){
             simpleSynth.triggerAttackRelease(curr_note, "8n.", time)

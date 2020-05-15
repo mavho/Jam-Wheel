@@ -33,11 +33,18 @@ def join(payload):
     emit('join room', {'room':room,'user':user_name, 'url': url_for('game')})
 
 @socketio.on('press key',namespace='/test_room')
-def key_handler(payload):
+def press_key(payload):
     room = payload['channel']
     user_name = payload['user_name']
     note = payload['note']
-    emit('press key',{'note':note, 'room':room, 'user_name':user_name}, room=room)
+    instrument = payload['type']
+    emit('press key',{'note':note, 'type':instrument, 'room':room, 'user_name':user_name}, room=room, include_self=False)
+
+@socketio.on('release key', namespace='/test_room')
+def release_key(payload):
+    room = payload['channel'] 
+    user_name = payload['user_name']
+    emit('release key',{'room':room, 'user_name':user_name}, room=room,include_self=False)
 
 
 @socketio.on('connect', namespace='/test_room')

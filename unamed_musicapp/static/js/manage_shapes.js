@@ -12,34 +12,49 @@ OCTAVE_LOWER=["C2","D2","E2","F2","G2","A2","B2","C3","D3","E3"]
 
 
 //save the state of each key.
-/*These vars are very important */
+/*These vars are very important
+These vars refer to this USER's sounds
+ */
 var keys = [];
 var curr_type = "SYNTH";
 var curr_note = "";
 
-var testsynth = new Tone.Synth({
-    "oscillator": {
-        "type": "sine",
-        "partialCount": 5,
-    },
-    "envelope": {
-        "attack": 0.01,
-        "decay": 1.2,
-        "release": 1.2,
-        "attackCurve": "exponential"
-    }
-}).toMaster();
+//represents the users in this server
+var users = {};
 
-
+// The idea is to spawn a loop for each of the users.
+// We track whether or not the loop has started or ended.
 socket.on('press key', function(msg){
-    console.log(msg);
-    //testsynth.triggerAttackRelease("C5",0.5);
-})
-var synth = new Tone.MembraneSynth().toMaster()
+    switch(msg['type']){
+        case "fatsawtooth":
+            users[msg['user']] = new Tone.Loop(function(time){
+                sawtooth.triggerAttackRelease(msg['note'], "8n.", time);
+            }, "8t");
+            break;
+        case "simplesynth":
+            users[msg['user']] = new Tone.Loop(function(time){
+                simpleSynth.triggerAttackRelease(msg['note'], "8n.", time);
+            }, "8t");
+            break;
+    }
+    if(users[msg['user']] !== undefined){
+        users[msg['user']].start(0);
+    }
+});
+
+socket.on('release key', function(msg){
+    if(users[msg['user']] !== undefined){
+        users[msg['user']].stop();
+    }
+});
+
+// Background base
+var membrane_synth = new Tone.MembraneSynth().toMaster()
+
 function setup(){
     // Set up canvas
-    var can_width = 600;
-    var can_height=600;
+    can_width = 800;
+    can_height=600;
     var canvas = createCanvas(can_width,can_height);
 
     canvas.parent('sketch')
@@ -50,7 +65,7 @@ function setup(){
     points = 10;
     pointAngle = 360/points;
 
-    radius = can_width/2.5;
+    radius = can_width/3;
 
     cir_centerX= can_width/2;
     cir_centerY = can_height/2;
@@ -62,7 +77,6 @@ function setup(){
         Tone.Transport.toggle();
     });
     document.querySelector('#FAT').addEventListener('click', async() =>{
-        console.log('hello')
         updateKeys('FAT');
     });
     document.querySelector('#SYNTH').addEventListener('click', async() =>{
@@ -70,7 +84,7 @@ function setup(){
     });
     //create a loop
     var loop = new Tone.Loop(function(time){
-        synth.triggerAttackRelease("C1", "8t", time)
+        membrane_synth.triggerAttackRelease("C1", "8t", time)
     }, "4n");
     
     //play the loop between 0-2m on the transport
@@ -80,6 +94,7 @@ function setup(){
     //Start the loop
     Tone.Transport.toggle();
 }
+// Used for drawing and setting up different keys
 function updateKeys(type){
     keys = [];
     let counter = 0 
@@ -114,13 +129,14 @@ function draw(){
     noFill();
     stroke(197,185,166);
     strokeWeight(5);
-    let b = synth.envelope.value;
+    let b = membrane_synth.envelope.value;
     for (var i = 0; i < 3; i++){
         x2 = (r + b*200)*tan(2*PI/b);
         y2 = (r + b*200)*tan(2*PI/b);
-        ellipse(height/2,width/2, x2, y2);
+        ellipse(cir_centerX,cir_centerY, x2, y2);
     }
 
+    
     stroke(94, 131, 181);
     strokeWeight(2);
     for(let i = 0; i < keys.length; i++){
@@ -135,7 +151,7 @@ function mousePressed(){
             key.clicked();
             curr_note = key.note;
             pressed_key = key;
-            socket.emit('press key', {'note': pressed_key.note, 'channel':room_name, 'user_name':user_name});
+            socket.emit('press key', {'note': pressed_key.note,'type': pressed_key.type,'toggle':true,'channel':room_name, 'user_name':user_name});
         }
     }
     return false;
@@ -146,10 +162,12 @@ function mouseDragged(){
         if(key.inTriangle(mouseX,mouseY)){
             if(key !== pressed_key){
                 pressed_key.released();
+                socket.emit('release key', {'channel':room_name, 'user_name':user_name});
                 pressed_key = key;
                 pressed_key.clicked();
+                socket.emit('press key', {'note': pressed_key.note,'type': pressed_key.type,'toggle':true,'channel':room_name, 'user_name':user_name});
                 curr_note = pressed_key.note;
-            }            //Key has moved from the original
+            }
             pressed_key.dragged(mouseX);
         }
     }
@@ -158,6 +176,7 @@ function mouseDragged(){
 
 function mouseReleased(){
     pressed_key.released();
+    socket.emit('release key',{'channel':room_name, 'user_name':user_name});
     return false;
 }
 //Code that deals with window resize should be here. 
