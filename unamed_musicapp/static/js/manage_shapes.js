@@ -26,14 +26,29 @@ var users = {};
 // We track whether or not the loop has started or ended.
 socket.on('press key', function(msg){
     switch(msg['type']){
-        case "fatsawtooth":
+        case FatOscillator.type:
             users[msg['user']] = new Tone.Loop(function(time){
                 sawtooth.triggerAttackRelease(msg['note'], "8n.", time);
             }, "8t");
             break;
-        case "simplesynth":
+        case SimpleSynth.type:
             users[msg['user']] = new Tone.Loop(function(time){
                 simpleSynth.triggerAttackRelease(msg['note'], "8n.", time);
+            }, "8t");
+            break;
+        case TomSynth.type:
+            users[msg['user']] = new Tone.Loop(function(time){
+                tomSynth.triggerAttackRelease(msg['note'], "8n.", time);
+            }, "8t");
+            break;
+        case BasicOscillator.type:
+            users[msg['user']] = new Tone.Loop(function(time){
+                basicoscillator.triggerAttackRelease(msg['note'], "8n.", time);
+            }, "8t");
+            break;
+        case Synth1.type:
+            users[msg['user']] = new Tone.Loop(function(time){
+                Synth1.triggerAttackRelease(msg['note'], "8n.", time);
             }, "8t");
             break;
     }
@@ -82,13 +97,22 @@ function setup(){
     document.querySelector('#SYNTH').addEventListener('click', async() =>{
         updateKeys('SYNTH');
     });
+    document.querySelector('#TOM').addEventListener('click', async() =>{
+        updateKeys('TOM');
+    });
+    document.querySelector('#OSCILLATOR').addEventListener('click', async() =>{
+        updateKeys('OSCILLATOR');
+    });
+    document.querySelector('#SYNTH1').addEventListener('click', async() =>{
+        updateKeys('SYNTH1');
+    });
     //create a loop
-    var loop = new Tone.Loop(function(time){
+    var background_tempo = new Tone.Loop(function(time){
         membrane_synth.triggerAttackRelease("C1", "8t", time)
     }, "4n");
     
     //play the loop between 0-2m on the transport
-    loop.start(0).stop('1m')
+    background_tempo.start(0).stop('1m')
     Tone.Transport.loopEnd = '1m'
     Tone.Transport.loop = true
     //Start the loop
@@ -117,6 +141,24 @@ function updateKeys(type){
                     hex_color_blue[counter],OCTAVE_LOWER[counter]);
                 keys.push(tri);
                 break;
+            case 'TOM':
+                var tri = new TomSynth(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
+                    ((cos(radians(temp)) * radius) + cir_centerX),(sin(radians(temp)) * radius) + cir_centerY,
+                    hex_color_blue[counter],C_MAJ_SCALE[counter]);
+                keys.push(tri);
+                break;
+            case 'OSCILLATOR':
+                var tri = new BasicOscillator(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
+                    ((cos(radians(temp)) * radius) + cir_centerX),(sin(radians(temp)) * radius) + cir_centerY,
+                    hex_color_blue[counter],C_MAJ_SCALE[counter]);
+                keys.push(tri);
+                break;
+            case 'SYNTH1':
+                var tri = new Synth1(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
+                    ((cos(radians(temp)) * radius) + cir_centerX),(sin(radians(temp)) * radius) + cir_centerY,
+                    hex_color_blue[counter],C_MAJ_SCALE[counter]);
+                keys.push(tri);
+                break;
         }
         counter++;
     }
@@ -129,10 +171,10 @@ function draw(){
     noFill();
     stroke(197,185,166);
     strokeWeight(5);
-    let b = membrane_synth.envelope.value;
+    let envelope = membrane_synth.envelope.value;
     for (var i = 0; i < 3; i++){
-        x2 = (r + b*200)*tan(2*PI/b);
-        y2 = (r + b*200)*tan(2*PI/b);
+        x2 = (r + envelope*200)*tan(2*PI/envelope);
+        y2 = (r + envelope*200)*tan(2*PI/envelope);
         ellipse(cir_centerX,cir_centerY, x2, y2);
     }
 
@@ -143,7 +185,7 @@ function draw(){
         keys[i].show();
     }
 }
-
+// keeps track of the current key the user is pressing.
 var pressed_key = new KeyNote();
 function mousePressed(){
     for(let key of keys){
@@ -157,9 +199,12 @@ function mousePressed(){
     return false;
 }
 
+//This function is called whenever mouse is dragged.
+// might be a performance hinderance?
 function mouseDragged(){
     for(let key of keys){
         if(key.inTriangle(mouseX,mouseY)){
+            //Only triggers if the key is different
             if(key !== pressed_key){
                 pressed_key.released();
                 socket.emit('release key', {'channel':room_name, 'user_name':user_name});
