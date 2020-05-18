@@ -67,23 +67,18 @@ socket.on('release key', function(msg){
 var membrane_synth = new Tone.MembraneSynth().toMaster()
 
 function setup(){
-    // Set up canvas
-    can_width = 800;
-    can_height=600;
-    var canvas = createCanvas(can_width,can_height);
 
+    canvasDiv = document.getElementById("sketch");
+    // Set up canvas
+    can_width = canvasDiv.offsetWidth;
+    can_height = windowHeight;
+    var canvas = createCanvas(can_width,can_height);
     canvas.parent('sketch')
+
     canvas.style('display','block')
     background(255,69,0);
 
     //Vars for the circle
-    points = 10;
-    pointAngle = 360/points;
-
-    radius = can_width/3;
-
-    cir_centerX= can_width/2;
-    cir_centerY = can_height/2;
     updateKeys(curr_type);
 
     document.querySelector('#toggle').addEventListener('click', async () => {
@@ -116,10 +111,17 @@ function setup(){
     Tone.Transport.loopEnd = '1m'
     Tone.Transport.loop = true
     //Start the loop
-    Tone.Transport.toggle();
+    //Tone.Transport.toggle();
 }
 // Used for drawing and setting up different keys
 function updateKeys(type){
+    curr_type = type;
+    let points = 10;
+    let pointAngle = 360/points;
+    let radius = can_width/6;
+    cir_centerX= can_width/2;
+    cir_centerY = can_height/2;
+
     keys = [];
     let counter = 0 
     //draw the triangle circle
@@ -227,4 +229,8 @@ function mouseReleased(){
 //Code that deals with window resize should be here. 
 // CSS styling with bulma will usually handle most of this
 function windowResized(){
+    // Set up canvas
+    can_width = canvasDiv.offsetWidth;
+    resizeCanvas(can_width,can_height);
+    updateKeys(curr_type);
 }

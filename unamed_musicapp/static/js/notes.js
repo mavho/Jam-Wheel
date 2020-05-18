@@ -93,11 +93,11 @@ class Synth1 extends KeyNote{
 
     }
     trigger_sound(){
-        this.noiseSynth.triggerAttack(this.note);
+        synth1.triggerAttackRelease(this.note,"8n");
     }
     clicked(){
         this.loop.start(0);
-        //this.trigger_sound();
+        this.trigger_sound();
         super.clicked();
     }
 
@@ -118,11 +118,11 @@ class BasicOscillator extends KeyNote{
 
     }
     trigger_sound(){
-        this.noiseSynth.triggerAttack(this.note);
+        basicoscillator.triggerAttackRelease(this.note,"8n");
     }
     clicked(){
         this.loop.start(0);
-        //this.trigger_sound();
+        this.trigger_sound();
         super.clicked();
     }
 
@@ -144,11 +144,11 @@ class FatOscillator extends KeyNote{
 
     }
     trigger_sound(){
-        this.noiseSynth.triggerAttack(this.note);
+        sawtooth.triggerAttackRelease(this.note,"8n");
     }
     clicked(){
         this.loop.start(0);
-        //this.trigger_sound();
+        this.trigger_sound();
         super.clicked();
     }
 
@@ -169,11 +169,11 @@ class SimpleSynth extends KeyNote{
         }, "8t");
     }
     trigger_sound(){
-        this.noiseSynth.triggerAttack(this.note);
+        simpleSynth.triggerAttackRelease(this.note,"8n");
     }
     clicked(){
         this.loop.start(0);
-        //this.trigger_sound();
+        this.trigger_sound();
         super.clicked();
     }
     released(){
@@ -193,11 +193,11 @@ class TomSynth extends KeyNote{
         }, "8t");
     }
     trigger_sound(){
-        this.noiseSynth.triggerAttack(this.note);
+        tomSynth.triggerAttackRelease(this.note,"8n");
     }
     clicked(){
         this.loop.start(0);
-        //this.trigger_sound();
+        this.trigger_sound();
         super.clicked();
     }
     released(){

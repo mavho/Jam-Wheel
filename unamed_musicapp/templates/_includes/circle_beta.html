@@ -5,14 +5,62 @@
 {% endblock %}
 
 {% block content %}
-    <div id="sketch" class="box is-bordered"></div>
+    <div class="columns is-centered is-vcentered">
+        <div class="column is-11">
+           <div class="tile is-ancestor is-vertical">
+                <div id="sketch" class="tile is-parent is-bordered"></div>
+           </div>
+        </div>
+        <div class="column  is-centered ">
+            <div class="box has-background-black">
+            <div class="tile is-vertical is-ancestor">
+                <div class="tile is-parent">
+                    <a class="a tile is-child has-text-centered" id="toggle">
+                        <span class="icon is-large">
+                            <i class="fas fa-3x fa-square"></i>
+                        </span>
+                    </a>
+                </div>
+                <div class="tile is-parent is-primary">
+                    <a class="a tile is-child has-text-centered" id="FAT">
+                        <span class="icon is-large">
+                            <i class="fas fa-3x fa-square"></i>
+                        </span>
+                    </a>
+                </div>
+                <div class="tile is-parent is-primary">
+                    <a class="a tile is-child has-text-centered" id="SYNTH">
+                        <span class="icon is-large">
+                            <i class="fas fa-3x fa-square"></i>
+                        </span>
+                    </a>
+                </div>
+                <div class="tile is-parent is-primary">
+                    <a class="a tile is-child has-text-centered" id="TOM">
+                        <span class="icon is-large">
+                            <i class="fas fa-3x fa-square"></i>
+                        </span>
+                    </a>
+                </div>
+                <div class="tile is-parent is-primary">
+                    <a class="a tile is-child has-text-centered" id="OSCILLATOR">
+                        <span class="icon is-large">
+                            <i class="fas fa-3x fa-square"></i>
+                        </span>
+                    </a>
+                </div>
+                <div class="tile is-parent is-primary">
+                    <a class="a tile is-child has-text-centered" id="SYNTH1">
+                        <span class="icon is-large">
+                            <i class="fas fa-3x fa-square"></i>
+                        </span>
+                    </a>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
 
-    <button class="button" id="toggle">Play!</button>
-    <button class="button" id="FAT">FAT</button>
-    <button class="button" id="SYNTH">SYNTH</button>
-    <button class="button" id="TOM">TS</button>
-    <button class="button" id="OSCILLATOR">OS</button>
-    <button class="button" id="SYNTH1">S1</button>
 {% endblock %}
 
 {% block scripts %}

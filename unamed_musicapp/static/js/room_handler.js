@@ -8,7 +8,9 @@ socket.on('join room', function(msg){
     console.log(msg['url']);
     $.ajax(msg['url']).done(function(reply){
         $('#container').html(reply);
+        
     });
+
 });
 //TODO: name validation etc
 document.querySelector("#room_join").addEventListener("click", async() =>{
