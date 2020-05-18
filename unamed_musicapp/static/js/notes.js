@@ -100,6 +100,10 @@ class Synth1 extends KeyNote{
         this.trigger_sound();
         super.clicked();
     }
+    dragged(){
+        this.loop.start(0);
+        super.dragged();
+    }
 
     released(){
         this.loop.stop();
@@ -124,6 +128,10 @@ class BasicOscillator extends KeyNote{
         this.loop.start(0);
         this.trigger_sound();
         super.clicked();
+    }
+    dragged(){
+        this.loop.start(0);
+        super.dragged();
     }
 
     released(){
@@ -151,6 +159,10 @@ class FatOscillator extends KeyNote{
         this.trigger_sound();
         super.clicked();
     }
+    dragged(){
+        this.loop.start(0);
+        super.dragged();
+    }
 
     released(){
         this.loop.stop();
@@ -165,7 +177,7 @@ class SimpleSynth extends KeyNote{
         this.type = "simplesynth";
         this.note = note;
         this.loop = new Tone.Loop(function(time){
-            simpleSynth.triggerAttackRelease(curr_note, "8n.", time)
+            simpleSynth.triggerAttackRelease(curr_note, "8n", time)
         }, "8t");
     }
     trigger_sound(){
@@ -175,6 +187,10 @@ class SimpleSynth extends KeyNote{
         this.loop.start(0);
         this.trigger_sound();
         super.clicked();
+    }
+    dragged(){
+        this.loop.start(0);
+        super.dragged();
     }
     released(){
         this.loop.stop();
@@ -199,6 +215,10 @@ class TomSynth extends KeyNote{
         this.loop.start(0);
         this.trigger_sound();
         super.clicked();
+    }
+    dragged(){
+        this.loop.start(0);
+        super.dragged();
     }
     released(){
         this.loop.stop();

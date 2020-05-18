@@ -1,0 +1,4 @@
+.nohref{
+    pointer-events: none;
+    cursor: default;
+}
