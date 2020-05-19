@@ -23,6 +23,10 @@ def index():
 def game():
     return render_template('_includes/circle_beta.html'), 200
 
+@app.route('/debug')
+def dbug():
+    return render_template('_includes/debug.html'), 200
+
 
 @socketio.on('join room', namespace='/test_room')
 def join(payload):

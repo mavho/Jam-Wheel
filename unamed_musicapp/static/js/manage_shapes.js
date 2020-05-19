@@ -65,7 +65,34 @@ socket.on('release key', function(msg){
 });
 
 // Background base
-var membrane_synth = new Tone.MembraneSynth().toMaster()
+var membrane_synth = new Tone.MembraneSynth(
+    {
+        "pitchDecay"  : 0.01 ,
+        "octaves"  : 5 ,
+        "oscillator"  : {
+            "type"  : "sine"
+    }  ,
+        "envelope"  : {
+            "attack"  : 0.001 ,
+            "decay"  : 0.1 ,
+            "sustain"  : 0.05 ,
+            "release"  : 0.01 ,
+            "attackCurve"  : "linear"
+        }
+    }
+).toMaster();
+// create effects
+var saturateDistortion= new Tone.Distortion(
+    effect1JSON = {
+        "distortion" : 0.08, 
+        "wet" : 0.3
+    }
+);
+    
+    
+// make connections
+membrane_synth.connect(saturateDistortion);
+//effect1.connect(Tone.Master);
 
 function setup(){
 
@@ -105,17 +132,16 @@ function setup(){
     });
     //create a loop
     var background_tempo = new Tone.Loop(function(time){
-        membrane_synth.triggerAttackRelease("C1", "8t", time)
-    }, "4t");
+        membrane_synth.triggerAttackRelease("C2", "8t", time)
+    }, "4n");
     
     //play the loop between 0-2m on the transport
     background_tempo.start(0).stop('1m');
-    Tone.Transport.loopEnd = '1m'
+    Tone.Transport.loopEnd = '1:0:0'
     Tone.Transport.loop = true
     //Start the loop
     //Tone.Transport.toggle();
 }
-
 //DOM's to switch between instruments
 function createSwitcher(){
     let top_div = createDiv();
@@ -247,14 +273,15 @@ function mouseDragged(){
         if(key.inTriangle(mouseX,mouseY)){
             //Only triggers if the key is different
             if(key !== pressed_key){
+                console.log("MOUSE DRAGGED")
                 pressed_key.released();
                 socket.emit('release key', {'channel':room_name, 'user_name':user_name});
                 pressed_key = key;
-                pressed_key.dragged();
+                pressed_key.playDragged();
                 socket.emit('press key', {'note': pressed_key.note,'type': pressed_key.type,'toggle':true,'channel':room_name, 'user_name':user_name});
                 curr_note = pressed_key.note;
             }
-            pressed_key.dragged(mouseX);
+            pressed_key.dragged();
         }
     }
     return false;

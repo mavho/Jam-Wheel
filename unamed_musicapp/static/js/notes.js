@@ -25,7 +25,7 @@ var synth1 = new Tone.Synth({
         "partials": [0.2,1,0,0.5,0.1]
     },
     "envelope": {
-        "attack": 0.001,
+        "attack": 0.01,
         "attackCurve": "linear",
         "decay": 1.6,
         "decayCurve":"exponential",
@@ -96,12 +96,11 @@ class Synth1 extends KeyNote{
         synth1.triggerAttackRelease(this.note,"8n");
     }
     clicked(){
-        this.loop.start(0);
         this.trigger_sound();
+        this.loop.start(0);
         super.clicked();
     }
     dragged(){
-        this.loop.start(0);
         super.dragged();
     }
 
@@ -125,13 +124,12 @@ class BasicOscillator extends KeyNote{
         basicoscillator.triggerAttackRelease(this.note,"8n");
     }
     clicked(){
-        this.loop.start(0);
         this.trigger_sound();
+        this.loop.start(0);
         super.clicked();
     }
-    dragged(){
+    playDragged(){
         this.loop.start(0);
-        super.dragged();
     }
 
     released(){
@@ -155,13 +153,15 @@ class FatOscillator extends KeyNote{
         sawtooth.triggerAttackRelease(this.note,"8n");
     }
     clicked(){
-        this.loop.start(0);
         this.trigger_sound();
+        this.loop.start(0);
         super.clicked();
     }
     dragged(){
-        this.loop.start(0);
         super.dragged();
+    }
+    playDragged(){
+        this.loop.start(0);
     }
 
     released(){
@@ -184,13 +184,15 @@ class SimpleSynth extends KeyNote{
         simpleSynth.triggerAttackRelease(this.note,"8n");
     }
     clicked(){
-        this.loop.start(0);
         this.trigger_sound();
+        this.loop.start(0);
         super.clicked();
     }
     dragged(){
-        this.loop.start(0);
         super.dragged();
+    }
+    playDragged(){
+        this.loop.start(0);
     }
     released(){
         this.loop.stop();
@@ -212,13 +214,15 @@ class TomSynth extends KeyNote{
         tomSynth.triggerAttackRelease(this.note,"8n");
     }
     clicked(){
-        this.loop.start(0);
         this.trigger_sound();
+        this.loop.start(0);
         super.clicked();
     }
     dragged(){
-        this.loop.start(0);
         super.dragged();
+    }
+    playDragged(){
+        this.loop.start(0);
     }
     released(){
         this.loop.stop();
