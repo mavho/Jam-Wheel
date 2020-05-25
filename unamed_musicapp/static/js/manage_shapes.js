@@ -3,13 +3,26 @@ p5.disableFriendlyErrors=true;
  * This is the main file that handles the canvas UI as well as
  * the P5 logic interacting with Tone.js
  */
-hex_color_wheel = ["#E50018","#E1008E","#BA00DD","#4400D9","#002CD5","#009AD2","#00CE98","#00CA2A","#3EC600","#A3C200"]
+const hex_color_wheel = ["#E50018","#E1008E","#BA00DD","#4400D9","#002CD5","#009AD2","#00CE98","#00CA2A","#3EC600","#A3C200"]
 
-hex_color_blue = ["#0016E5","#0229DB","#053AD2","#0749C9","#0956BF","#0B61B6","#0C6AAD","#0E71A3","#0F779A","#107A91"]
+const hex_color_blue = ["#0016E5","#0229DB","#053AD2","#0749C9","#0956BF","#0B61B6","#0C6AAD","#0E71A3","#0F779A","#107A91"]
 
-C_MAJ_SCALE =["C4","D4","E4","F4","G4","A4","B4","C5","D5","E5"]
+const hex_color_red = ["#E50022","#DB041F","#D1091C","#C70E1A","#BD1317","#A91D12","#9F220F","#95220F","#95270D","#823108"]
 
-OCTAVE_LOWER=["C2","D2","E2","F2","G2","A2","B2","C3","D3","E3"]
+const hex_color_peach = ["#DD5336","#DD503B","#DE4D41","#DE4A47","#DF474D","#DF4453","#E04159","#E03E5F","#E13B65","#E23671"]
+
+const hex_color_yellow = ["#E7D947","#DBD944","#CFDA42","#C3DB41","#B8DC3F","#ACDD3E","#A0DE3C","#95DF3A","#89E039","#7DE137"]
+
+const hex_color_green = ["#0B5403","#105C04","#166405","#1B6C06","#217407","#277C08","#2C8409","#328C0A","#37940B","#3D9C0C"]
+const C_MAJ_SCALE =["C4","D4","E4","F4","G4","A4","B4","C5","D5","E5"]
+
+const OCTAVE_LOWER=["C2","D2","E2","F2","G2","A2","B2","C3","D3","E3"]
+
+const blue = "#003680";
+const green = "#6CDA70";
+const red = "#710A0D";
+const peach ="#E08A8C";
+const yellow = "#D9B33A";
 
 
 //save the state of each key.
@@ -19,6 +32,8 @@ These vars refer to this USER's sounds
 var keys = [];
 var curr_type = "SYNTH";
 var curr_note = "";
+var canvas_background = blue;
+var inline_color = blue;
 
 //represents the users in this server
 var users = {};
@@ -37,14 +52,14 @@ socket.on('press key', function(msg){
                 simpleSynth.triggerAttackRelease(msg['note'], "8n.", time);
             }, "8t");
             break;
-        case TomSynth.type:
+        case Kalimba.type:
             users[msg['user']] = new Tone.Loop(function(time){
-                tomSynth.triggerAttackRelease(msg['note'], "8n.", time);
+                kalimba.triggerAttackRelease(msg['note'], "8n.", time);
             }, "8t");
             break;
-        case BasicOscillator.type:
+        case Pianoetta.type:
             users[msg['user']] = new Tone.Loop(function(time){
-                basicoscillator.triggerAttackRelease(msg['note'], "8n.", time);
+                pianoetta.triggerAttackRelease(msg['note'], "8n.", time);
             }, "8t");
             break;
         case Synth1.type:
@@ -81,17 +96,6 @@ var membrane_synth = new Tone.MembraneSynth(
         }
     }
 ).toMaster();
-// create effects
-var saturateDistortion= new Tone.Distortion(
-    effect1JSON = {
-        "distortion" : 0.08, 
-        "wet" : 0.3
-    }
-);
-    
-    
-// make connections
-membrane_synth.connect(saturateDistortion);
 //effect1.connect(Tone.Master);
 
 function setup(){
@@ -116,23 +120,24 @@ function setup(){
         Tone.Transport.toggle();
     });
     document.querySelector('#FAT').addEventListener('click', async() =>{
-        updateKeys('FAT');
+        updateKeys(FatOscillator.type);
     });
     document.querySelector('#SYNTH').addEventListener('click', async() =>{
-        updateKeys('SYNTH');
+        updateKeys(SimpleSynth.type);
     });
-    document.querySelector('#TOM').addEventListener('click', async() =>{
-        updateKeys('TOM');
+    document.querySelector('#KALIMBA').addEventListener('click', async() =>{
+        updateKeys(Kalimba.type);
     });
-    document.querySelector('#OSCILLATOR').addEventListener('click', async() =>{
-        updateKeys('OSCILLATOR');
+    document.querySelector('#PIANOETTA').addEventListener('click', async() =>{
+        updateKeys(Pianoetta.type);
     });
     document.querySelector('#SYNTH1').addEventListener('click', async() =>{
-        updateKeys('SYNTH1');
+        updateKeys(Synth1.type);
     });
     //create a loop
     var background_tempo = new Tone.Loop(function(time){
-        membrane_synth.triggerAttackRelease("C2", "8t", time)
+        membrane_synth.triggerAttackRelease("F2", "4t", time)
+        membrane_synth.triggerAttackRelease("C2", "4t", time)
     }, "4n");
     
     //play the loop between 0-2m on the transport
@@ -157,7 +162,8 @@ function createSwitcher(){
     ancestor_tile.addClass("tile is-vertical is-ancestor");
     ancestor_tile.parent(box)
 
-    let ids= ["toggle","FAT","SYNTH","TOM","OSCILLATOR","SYNTH1"]
+    let ids= ["toggle","FAT","PIANOETTA","SYNTH","KALIMBA","SYNTH1"]
+    let colors = ["purple","red","peach","yellow","green","blue"]
     for(let i=0; i < 6; i++){
         let parent_tile = createDiv();
         parent_tile.addClass("tile is parent")
@@ -171,7 +177,7 @@ function createSwitcher(){
         child_tile.parent(parent_tile);
 
         let span = createSpan();
-        span.addClass("icon is-large");
+        span.addClass("icon is-large " + colors[i]);
         span.parent(child_tile);
 
         let icon = createElement('i');
@@ -197,35 +203,45 @@ function updateKeys(type){
 
         let temp = angle + pointAngle;
         switch(type){
-            case 'FAT':
+            case FatOscillator.type:
                 var tri = new FatOscillator(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
                     ((cos(radians(temp)) * radius) + cir_centerX),(sin(radians(temp)) * radius) + cir_centerY,
-                    hex_color_blue[counter],OCTAVE_LOWER[counter]);
+                    hex_color_red[counter],OCTAVE_LOWER[counter]);
                 keys.push(tri);
+                canvas_background = red;
+                inline_color = blue;
                 break;
-            case 'SYNTH':
+            case SimpleSynth.type:
                 var tri = new SimpleSynth(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
                     ((cos(radians(temp)) * radius) + cir_centerX),(sin(radians(temp)) * radius) + cir_centerY,
-                    hex_color_blue[counter],OCTAVE_LOWER[counter]);
+                    hex_color_yellow[counter],OCTAVE_LOWER[counter]);
                 keys.push(tri);
+                canvas_background = yellow;
+                inline_color = yellow;
                 break;
-            case 'TOM':
-                var tri = new TomSynth(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
+            case Kalimba.type:
+                var tri = new Kalimba(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
                     ((cos(radians(temp)) * radius) + cir_centerX),(sin(radians(temp)) * radius) + cir_centerY,
-                    hex_color_blue[counter],C_MAJ_SCALE[counter]);
+                    hex_color_green[counter],C_MAJ_SCALE[counter]);
                 keys.push(tri);
+                canvas_background = green;
+                inline_color = peach;
                 break;
-            case 'OSCILLATOR':
-                var tri = new BasicOscillator(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
+            case Pianoetta.type:
+                var tri = new Pianoetta(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
                     ((cos(radians(temp)) * radius) + cir_centerX),(sin(radians(temp)) * radius) + cir_centerY,
-                    hex_color_blue[counter],C_MAJ_SCALE[counter]);
+                    hex_color_peach[counter],OCTAVE_LOWER[counter]);
                 keys.push(tri);
+                canvas_background = peach;
+                inline_color = red;
                 break;
-            case 'SYNTH1':
+            case Synth1.type:
                 var tri = new Synth1(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
                     ((cos(radians(temp)) * radius) + cir_centerX),(sin(radians(temp)) * radius) + cir_centerY,
                     hex_color_blue[counter],C_MAJ_SCALE[counter]);
                 keys.push(tri);
+                canvas_background = blue;
+                inline_color = green;
                 break;
         }
         counter++;
@@ -234,7 +250,7 @@ function updateKeys(type){
 
 //Draw the shapes continuously
 function draw(){
-    background("#003680");
+    background(canvas_background);
     let r = 150;
     noFill();
     stroke(197,185,166);
@@ -246,7 +262,7 @@ function draw(){
         ellipse(cir_centerX,cir_centerY, x2, y2);
     }
 
-    stroke(94, 131, 181);
+    stroke(inline_color);
     strokeWeight(2);
     for(let i = 0; i < keys.length; i++){
         keys[i].show();

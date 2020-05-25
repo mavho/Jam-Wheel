@@ -34,23 +34,6 @@ var synth1 = new Tone.Synth({
     }
 }).toMaster();
 
-var tomSynth= new Tone.Synth({
-    "oscillator":{
-        "type":"sine",
-        "partialCount":0,
-        "spread":80,
-        "count":3
-    },
-    "envelope": {
-        "attack": 0.01,
-        "attackCurve": "sine",
-        "decay": 0.22,
-        "decayCurve":"exponential",
-        "release": 1.4,
-        "releaseCurve":"exponential"
-    }
-}).toMaster();
-
 var sawtooth = new Tone.Synth({
     "oscillator":{
         "type": "fatsawtooth",
@@ -66,27 +49,72 @@ var sawtooth = new Tone.Synth({
     }
 }).toMaster();
 
-var basicoscillator = new Tone.Synth({
-    "oscillator":{
-        "partialCount":2,
-        "spread":20,
-        "count":3
+//Wtf is a pianoetta lol
+var pianoetta = new Tone.Synth({
+    "oscillator": {
+        "type": "square"
     },
-    "envelope":{
-        "attack":0.01,
-        "decay": 1.60,
-        "sustain": 0.00,
-        "release": 1.2,
-        "releaseCurve":"exponential",
-        "attackCurve": "linear"
+    "filter": {
+        "Q": 2,
+        "type": "lowpass",
+        "rolloff": -24
+    },
+    "envelope": {
+        "attack": 0.005,
+        "decay": 3,
+        "sustain": 0,
+        "release": 0.45
+    },
+    "filterEnvelope": {
+        "attack": 0.001,
+        "decay": 0.64,
+        "sustain": 0.9,
+        "release": 3,
+        "baseFrequency": 700,
+        "octaves": 2.3
     }
 }).toMaster();
 
+
+var kalimba = new Tone.Synth({
+    "harmonicity":8,
+    "modulationIndex": 2,
+    "oscillator" : {
+        "type": "sine"
+    },
+    "envelope": {
+        "attack": 0.01,
+        "decay": 2,
+        "sustain": 0.1,
+        "release": 2
+    },
+    "modulation" : {
+        "type" : "square"
+    },
+    "modulationEnvelope" : {
+        "attack": 0.002,
+        "decay": 0.2,
+        "sustain": 0,
+        "release": 0.2
+    }
+}).toMaster();
+
+var effect1;
+// create effects
+var reverb = new Tone.Freeverb({
+    "roomSize": 0.3,
+    "dampening": 800,
+       "wet": 0.2
+});
+// make connections
+kalimba.connect(reverb);
+
 class Synth1 extends KeyNote{
+    static type = "SYNTH1";
     constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
         super(x1,y1,x2,y2,x3,y3, in_color);
-        this.type = "Synth1";
         this.note = note;
+        this.type="KALIMBA";
         this.loop = new Tone.Loop(function(time){
             synth1.triggerAttackRelease(curr_note, "8n.", time)
         }, "8t");
@@ -100,6 +128,9 @@ class Synth1 extends KeyNote{
         this.loop.start(0);
         super.clicked();
     }
+    playDragged(){
+        this.loop.start(0);
+    }
     dragged(){
         super.dragged();
     }
@@ -110,18 +141,19 @@ class Synth1 extends KeyNote{
         super.released();
     }
 }
-class BasicOscillator extends KeyNote{
+class Pianoetta extends KeyNote{
+    static type = "PIANOETTA";
     constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
         super(x1,y1,x2,y2,x3,y3, in_color);
-        this.type = "b_oscillator";
         this.note = note;
+        this.type="KALIMBA";
         this.loop = new Tone.Loop(function(time){
-            basicoscillator.triggerAttackRelease(curr_note, "8n.", time)
+            pianoetta.triggerAttackRelease(curr_note, "8n.", time)
         }, "8t");
 
     }
     trigger_sound(){
-        basicoscillator.triggerAttackRelease(this.note,"8n");
+        pianoetta.triggerAttackRelease(this.note,"8n");
     }
     clicked(){
         this.trigger_sound();
@@ -140,10 +172,11 @@ class BasicOscillator extends KeyNote{
 }
 
 class FatOscillator extends KeyNote{
+    static type = "FAT";
     constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
         super(x1,y1,x2,y2,x3,y3, in_color);
-        this.type = "fatsawtooth";
         this.note = note;
+        this.type="KALIMBA";
         this.loop = new Tone.Loop(function(time){
             sawtooth.triggerAttackRelease(curr_note, "8n.", time)
         }, "8t");
@@ -172,10 +205,11 @@ class FatOscillator extends KeyNote{
 }
  
 class SimpleSynth extends KeyNote{
+    static type = "SYNTH";
     constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
         super(x1,y1,x2,y2,x3,y3, in_color);
-        this.type = "simplesynth";
         this.note = note;
+        this.type="KALIMBA";
         this.loop = new Tone.Loop(function(time){
             simpleSynth.triggerAttackRelease(curr_note, "8n", time)
         }, "8t");
@@ -201,17 +235,18 @@ class SimpleSynth extends KeyNote{
     }
 }
 
-class TomSynth extends KeyNote{
+class Kalimba extends KeyNote{
+    static type = "KALIMBA";
     constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
         super(x1,y1,x2,y2,x3,y3, in_color);
-        this.type = "tomSynth";
         this.note = note;
+        this.type="KALIMBA";
         this.loop = new Tone.Loop(function(time){
-            tomSynth.triggerAttackRelease(curr_note, "8n.", time)
+            kalimba.triggerAttackRelease(curr_note, "8n.", time)
         }, "8t");
     }
     trigger_sound(){
-        tomSynth.triggerAttackRelease(this.note,"8n");
+        kalimba.triggerAttackRelease(this.note,"8n");
     }
     clicked(){
         this.trigger_sound();
