@@ -33,6 +33,7 @@ var keys = [];
 var curr_type = "SYNTH";
 var curr_note = "";
 var canvas_background = blue;
+//color between the keys
 var inline_color = blue;
 
 //represents the users in this server
@@ -41,45 +42,14 @@ var users = {};
 // The idea is to spawn a loop for each of the users.
 // We track whether or not the loop has started or ended.
 socket.on('press key', function(msg){
-    switch(msg['type']){
-        case FatOscillator.type:
-            console.log(FatOscillator.type);
-            sawtooth.triggerAttackRelease(msg['note'], "8n.", time);
-            users[msg['user']] = new Tone.Loop(function(time){
-                sawtooth.triggerAttackRelease(msg['note'], "8n.", time);
-            }, "8t");
-            break;
-        case SimpleSynth.type:
-            console.log(SimpleSynth.type);
-            simpleSynth.triggerAttackRelease(msg['note'], "8n.", time);
-            users[msg['user']] = new Tone.Loop(function(time){
-                simpleSynth.triggerAttackRelease(msg['note'], "8n.", time);
-            }, "8t");
-            break;
-        case Kalimba.type:
-            console.log(Kalimba.type);
-            kalimba.triggerAttackRelease(msg['note'], "8n.", time);
-            users[msg['user']] = new Tone.Loop(function(time){
-                kalimba.triggerAttackRelease(msg['note'], "8n.", time);
-            }, "8t");
-            break;
-        case Pianoetta.type:
-            console.log(Pianoetta.type);
-            pianoetta.triggerAttackRelease(msg['note'], "8n.", time);
-            users[msg['user']] = new Tone.Loop(function(time){
-                pianoetta.triggerAttackRelease(msg['note'], "8n.", time);
-            }, "8t");
-            break;
-        case Synth1.type:
-            console.log(Synth1.type);
-            synth1.triggerAttackRelease(msg['note'], "8n.", time);
-            users[msg['user']] = new Tone.Loop(function(time){
-                synth1.triggerAttackRelease(msg['note'], "8n.", time);
-            }, "8t");
-            break;
+    console.log(msg);
+    if(msg['user'] in users && users[msg['user']].type == msg['type']){
+        users[msg['user']].updateNote(msg['note']);
+    }else{
+        users[msg['user']] = new User(msg['type'],msg['note']); 
     }
     if(users[msg['user']] !== undefined){
-        users[msg['user']].start(0);
+        users[msg['user']].startLoop();
     }
 });
 
@@ -91,8 +61,9 @@ socket.on('disconnect',function(msg){
 });
 
 socket.on('release key', function(msg){
+    console.log("release key " + msg);
     if(users[msg['user']] !== undefined){
-        users[msg['user']].stop();
+        users[msg['user']].endLoop();
     }
 });
 
@@ -269,12 +240,13 @@ function drawIncomingNotes(r,val){
         return;
     }
     for(let loop of Object.keys(users)){
-        if(users[loop].state == 'started'){
-            console.log("draw");
+        let env = users[loop].env_val;
+        if(users[loop].isPlaying()){
+            stroke(users[loop].color);
             //draws an ellipse
             for (var i = 0; i < 3; i++){
-                let x2 = (r + val*200)*tan(2*PI/val);
-                let y2 = (r + val*200)*tan(2*PI/val);
+                let x2 = (r + env*200)*tan(2*PI/env);
+                let y2 = (r + env*200)*tan(2*PI/env);
                 ellipse(cir_centerX,cir_centerY, x2, y2);
             }
         }

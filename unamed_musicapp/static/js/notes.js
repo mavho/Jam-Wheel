@@ -316,3 +316,69 @@ class Kalimba extends KeyNote{
     }
 
 }
+
+class User {
+    constructor(type,note) {
+        //this value is used in drawIncomingNotes
+        //todo set this up
+        this.env_val= 10;
+        this.color = blue;
+        this.loop = this._determineLoopType(type);
+        this.type = type;
+        this.note = note;
+    }
+    _determineLoopType(type) {
+        /**
+         * We use bind because we want to use the loop again in the future.
+         * Not too much overhead...
+         */
+        switch (type) {
+            case FatOscillator.type:
+                this.env_val = 10;
+                this.color=blue;
+                return new Tone.Loop(function (time) {
+                    sawtooth.triggerAttackRelease(this.note,"8n.", time);
+                }.bind(this), "8t");
+            case SimpleSynth.type:
+                this.env_val = 20;
+                this.color=peach;
+                return new Tone.Loop(function (time) {
+                    simpleSynth.triggerAttackRelease(this.note, "8n.", time);
+                }.bind(this), "8t");
+            case Kalimba.type:
+                this.env_val = 30;
+                this.color=blue;
+                return new Tone.Loop(function (time) {
+                    kalimba.triggerAttackRelease(this.note, "8n.", time);
+                }.bind(this), "8t");
+            case Pianoetta.type:
+                this.env_val = 24;
+                this.color=red;
+                return new Tone.Loop(function (time) {
+                    pianoetta.triggerAttackRelease(this.note, "8n.", time);
+                }.bind(this), "8t");
+            case Synth1.type:
+                this.env_val = 15;
+                this.color=green;
+                return new Tone.Loop(function (time) {
+                    synth1.triggerAttackRelease(this.note, "8n.", time);
+                }.bind(this), "8t");
+        }
+    } 
+
+    isPlaying(){
+        return this.loop.state == "started";
+    }
+    updateNote(note){
+        this.note = note;
+    }
+    hasStoped(){
+        return this.loop.state == "stopped";
+    }
+    startLoop(){
+        this.loop.start(0);
+    }
+    endLoop(){
+        this.loop.stop();
+    }
+}
