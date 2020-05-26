@@ -11,6 +11,7 @@
   "dependencies": {
     "bufferutil": "^4.0.1",
     "jquery": "^3.5.1",
+    "rythm.js": "^2.2.5",
     "socket.io": "^2.3.0",
     "tone": "^13.8.25",
     "utf-8-validate": "^5.0.2"

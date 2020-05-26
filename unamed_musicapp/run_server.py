@@ -9,11 +9,8 @@ app.config.from_object(Config)
 socketio = SocketIO(app)
 db = SQLAlchemy(app)
 
-
-class Rooms(db.Model):
-    id = db.Column(db.Integer,primary_key=True)
-    name = db.Column(db.String(32),index=True)
-    count = db.Column(db.Integer,index=True)
+### sid: (user,room)
+sid_username_room = {}
 
 @app.route('/')
 def index():
@@ -33,6 +30,8 @@ def join(payload):
     room = payload['room'] 
     user_name = payload['user_name']
     print(request.sid + ' joined ' + room, file=sys.stderr)
+    if request.sid not in sid_username_room:
+        sid_username_room[request.sid] = (user_name,room)
     join_room(room)
     emit('join room', {'room':room,'user':user_name, 'url': url_for('game')})
 
@@ -59,6 +58,9 @@ def test_connect():
 @socketio.on('disconnect', namespace='/test_room')
 def test_disconnect():
     print(request.sid + ' Client disconnected', file=sys.stderr)
+    if request.sid in sid_username_room:
+        data = sid_username_room[request.sid]
+        emit('disconnect', {'user': data[0]}, room=data[1])
 
 if __name__ == '__main__':
     app.debug=True

@@ -1,3 +1,53 @@
+class KeyNote{
+    /*Class to hold the keyNotes in the circle
+    inTriangle checks if a given point is within this triangle
+    clicked should be called onMouseCLicked()
+    same for released.
+    show is continusously called
+    */
+    constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E"){
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
+        this.x3 = x3;
+        this.y3 = y3;
+        this.orig_color = in_color;
+        this.curr_color = this.orig_color;
+        this.click = false;
+    }   
+
+    inTriangle(mouX,mouY){
+        var A = 1/2 * (-this.y2 * this.x3 + this.y1 * (-this.x2+ this.x3) + this.x1 * (this.y2 - this.y3) + this.x2 * this.y3);
+        var sign = A < 0 ? -1 : 1;
+
+        var s = (this.y1 * this.x3 - this.x1 * this.y3 + (this.y3 - this.y1) * mouX + (this.x1 - this.x3) * mouY) * sign;
+        var t = (this.x1 * this.y2 - this.y1 * this.x2 + (this.y1 - this.y2) * mouX + (this.x2 - this.x1) * mouY) * sign;
+        
+        return s > 0 && t > 0 && (s + t) < 2 * A * sign;
+    }
+
+    clicked(){
+        let color_shade = lerpColor(color(this.orig_color), color(72,61,139), 0.35);
+        this.curr_color = color_shade;
+        this.click =true;
+    }
+
+    dragged(vibrato){
+        this.vibratoAmount = vibrato*10;
+        let color_shade = lerpColor(color(this.orig_color), color(72,61,139), 0.35);
+        this.curr_color = color_shade;
+    }
+    released(){
+        this.click=false;
+        this.curr_color = this.orig_color;
+    }
+
+    show(){
+        fill(color(this.curr_color));
+        triangle(this.x1,this.y1,this.x2,this.y2,this.x3,this.y3)
+    }
+}
 /**
  * These are the instruments. Some of the classes hook up to the transport
  * because I utilize loops. Different instruments are handled differently.
@@ -114,7 +164,7 @@ class Synth1 extends KeyNote{
     constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
         super(x1,y1,x2,y2,x3,y3, in_color);
         this.note = note;
-        this.type="KALIMBA";
+        this.type="SYNTH1";
         this.loop = new Tone.Loop(function(time){
             synth1.triggerAttackRelease(curr_note, "8n.", time)
         }, "8t");
@@ -146,7 +196,7 @@ class Pianoetta extends KeyNote{
     constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
         super(x1,y1,x2,y2,x3,y3, in_color);
         this.note = note;
-        this.type="KALIMBA";
+        this.type="PIANOETTA";
         this.loop = new Tone.Loop(function(time){
             pianoetta.triggerAttackRelease(curr_note, "8n.", time)
         }, "8t");
@@ -176,7 +226,7 @@ class FatOscillator extends KeyNote{
     constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
         super(x1,y1,x2,y2,x3,y3, in_color);
         this.note = note;
-        this.type="KALIMBA";
+        this.type="FAT";
         this.loop = new Tone.Loop(function(time){
             sawtooth.triggerAttackRelease(curr_note, "8n.", time)
         }, "8t");
@@ -209,7 +259,7 @@ class SimpleSynth extends KeyNote{
     constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
         super(x1,y1,x2,y2,x3,y3, in_color);
         this.note = note;
-        this.type="KALIMBA";
+        this.type="SYNTH";
         this.loop = new Tone.Loop(function(time){
             simpleSynth.triggerAttackRelease(curr_note, "8n", time)
         }, "8t");

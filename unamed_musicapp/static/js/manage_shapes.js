@@ -43,33 +43,50 @@ var users = {};
 socket.on('press key', function(msg){
     switch(msg['type']){
         case FatOscillator.type:
+            console.log(FatOscillator.type);
+            sawtooth.triggerAttackRelease(msg['note'], "8n.", time);
             users[msg['user']] = new Tone.Loop(function(time){
                 sawtooth.triggerAttackRelease(msg['note'], "8n.", time);
             }, "8t");
             break;
         case SimpleSynth.type:
+            console.log(SimpleSynth.type);
+            simpleSynth.triggerAttackRelease(msg['note'], "8n.", time);
             users[msg['user']] = new Tone.Loop(function(time){
                 simpleSynth.triggerAttackRelease(msg['note'], "8n.", time);
             }, "8t");
             break;
         case Kalimba.type:
+            console.log(Kalimba.type);
+            kalimba.triggerAttackRelease(msg['note'], "8n.", time);
             users[msg['user']] = new Tone.Loop(function(time){
                 kalimba.triggerAttackRelease(msg['note'], "8n.", time);
             }, "8t");
             break;
         case Pianoetta.type:
+            console.log(Pianoetta.type);
+            pianoetta.triggerAttackRelease(msg['note'], "8n.", time);
             users[msg['user']] = new Tone.Loop(function(time){
                 pianoetta.triggerAttackRelease(msg['note'], "8n.", time);
             }, "8t");
             break;
         case Synth1.type:
+            console.log(Synth1.type);
+            synth1.triggerAttackRelease(msg['note'], "8n.", time);
             users[msg['user']] = new Tone.Loop(function(time){
-                Synth1.triggerAttackRelease(msg['note'], "8n.", time);
+                synth1.triggerAttackRelease(msg['note'], "8n.", time);
             }, "8t");
             break;
     }
     if(users[msg['user']] !== undefined){
         users[msg['user']].start(0);
+    }
+});
+
+socket.on('disconnect',function(msg){
+    console.log("A client " + msg['user'] + " has disconnected");
+    if (msg['user'] in users){
+        delete users[msg['user']];
     }
 });
 
@@ -99,7 +116,6 @@ var membrane_synth = new Tone.MembraneSynth(
 //effect1.connect(Tone.Master);
 
 function setup(){
-
     canvasDiv = document.getElementById("sketch");
     // Set up canvas
     can_width = canvasDiv.offsetWidth;
@@ -155,7 +171,7 @@ function createSwitcher(){
     top_div.parent('sketch')
 
     let box = createDiv();
-    box.addClass("box has-background-black");
+    box.addClass("box");
     box.parent(top_div)
 
     let ancestor_tile = createDiv();
@@ -217,7 +233,7 @@ function updateKeys(type){
                     hex_color_yellow[counter],OCTAVE_LOWER[counter]);
                 keys.push(tri);
                 canvas_background = yellow;
-                inline_color = yellow;
+                inline_color = peach;
                 break;
             case Kalimba.type:
                 var tri = new Kalimba(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
@@ -248,6 +264,22 @@ function updateKeys(type){
     }
 }
 
+function drawIncomingNotes(r,val){
+    if(Object.keys(users).length == 0){
+        return;
+    }
+    for(let loop of Object.keys(users)){
+        if(users[loop].state == 'started'){
+            console.log("draw");
+            //draws an ellipse
+            for (var i = 0; i < 3; i++){
+                let x2 = (r + val*200)*tan(2*PI/val);
+                let y2 = (r + val*200)*tan(2*PI/val);
+                ellipse(cir_centerX,cir_centerY, x2, y2);
+            }
+        }
+    }
+}
 //Draw the shapes continuously
 function draw(){
     background(canvas_background);
@@ -262,12 +294,15 @@ function draw(){
         ellipse(cir_centerX,cir_centerY, x2, y2);
     }
 
+    drawIncomingNotes(r,40);
+
     stroke(inline_color);
     strokeWeight(2);
     for(let i = 0; i < keys.length; i++){
         keys[i].show();
     }
 }
+
 // keeps track of the current key the user is pressing.
 var pressed_key = new KeyNote();
 function mousePressed(){

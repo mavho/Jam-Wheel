@@ -2,6 +2,7 @@
 {% block head %}
     <script src="{{ url_for('static', filename='node_modules/tone/build/Tone.js') }}"></script>
     <script src="{{ url_for('static', filename='js/p5/p5.js') }}"></script>
+    <script src="{{ url_for('static', filename='node_modules/rythm.js/rythm.js') }}"></script>
 {% endblock %}
 
 {% block content %}
@@ -12,11 +13,16 @@
            </div>
         </div>
     </div>
-
+    <span class="icon is-large">
+        <span class="fa-stack fa-lg">
+          <i class="fas fa-laugh fa-stack-2x"></i>
+          <i class="fas fa-headset fa-stack-3x"></i>
+        </span>
+      </span>
 {% endblock %}
 
 {% block scripts %}
-    <script src="static/js/key_note.js"></script>
+    <!--<script src="static/js/key_note.js"></script>-->
     <script src="static/js/notes.js"></script>
     <script src="static/js/manage_shapes.js"></script>
 {% endblock %}
