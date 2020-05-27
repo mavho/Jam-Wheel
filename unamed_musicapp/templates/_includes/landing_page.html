@@ -3,18 +3,17 @@
     <title>Jam Wheel</title>
     <link rel="stylesheet" href="static/css/bulma.css"></link>
     <link rel="stylesheet" href="static/css/style.css"></link>
+    <link rel="stylesheet"  href="static/css/badscript-regular.woff"></link>
+    <link rel="stylesheet"  href="static/css/badscript-regular.woff2"></link>
     <script src="https://kit.fontawesome.com/1039dec531.js" crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='node_modules/socket.io-client/dist/socket.io.js') }}"></script>
     <script src="{{ url_for('static', filename='node_modules/jquery/dist/jquery.min.js') }}"></script>
-    <section class="hero is-light is-bold">
+    <section  class="hero has-background-black is-bold">
         <div class="hero-body">
             <div class="container">
-                <h1 class="title">
+                <h6 id="title"class="title is-1 bad-script has-text-centered glow has-text-light">
                     Jam Wheel
-                </h1>
-                <h2 class="subtitle">
-                   Made by Maverick Ho 
-                </h2>
+                </h6>
             </div>
         </div>
     </section>
@@ -22,22 +21,36 @@
 
 {% block content %}
 <div class="columns is-centered">
-    <div class="column is-half">
-        <div class="tile is-ancestor is-vertical">
+    <div class="column is-half stretchVert">
+        <div id="window" class="tile box is-ancestor is-vertical">
             <div class="tile is-parent">
-                <h1>Jam Wheel</h1>
+                <h1 class="has-text-grey">Jam Wheel is an interactive multiplayer jam session. Simply enter a room ID
+                    and username and start jamming!</h1>
             </div>
             <div class="tile is-parent">
                 <div class="tile is-child">
-                    <input id="room_input" class="input level-item" type="text" placeholder="Room Name"> </input>
+                    <input id="room_input" class="input level-item  has-text-light" type="text"
+                        placeholder="Enter Room Name..."> </input>
                 </div>
                 <div class="tile is-child">
-                    <input id="username_input" class="input level-item" type="text" placeholder="UserName"> </input>
+                    <input id="username_input" class="input level-item has-text-light" type="text"
+                        placeholder="Enter UserName..."> </input>
                 </div>
             </div>
             <div class="tile is-parent">
                 <div class="tile is-child">
-                    <span id="room_join" class="button is-flex">Play!</span>
+                    <span id="room_join" class="button is-flex purple-button has-text-light">Join Room!</span>
+                </div>
+            </div>
+
+            <div class="tile is-parent">
+                <div class="tile is-child">
+                    <p class="has-text-grey">
+                        <strong class="has-text-grey">Jam Wheel</strong> is created by <a
+                            href="https://github.com/mavho/Jam-Wheel">Maverick Ho</a>.
+                        This site is still under active development, there is still much to work on. If you want to help
+                        collaborate email me at <a href = "mailto: homaverick@gmail.com">homaverick@gmail.com</a> and I can set up collaboraters.
+                    </p>
                 </div>
             </div>
 
@@ -45,7 +58,6 @@
     </div>
 </div>
 {% endblock %}
-
 {% block scripts %}
     <script src="static/js/room_handler.js"></script>
 {% endblock %}

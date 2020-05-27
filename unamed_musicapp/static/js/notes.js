@@ -321,11 +321,12 @@ class UserLoop {
     constructor(type,note) {
         //this value is used in drawIncomingNotes
         //todo set this up
-        this.env_val= 10;
+        this.env_val= 0.00;
         this.color = blue;
         this.loop = this._determineLoopType(type);
         this.type = type;
         this.note = note;
+        this.instrument = membrane_synth;
     }
     _determineLoopType(type) {
         /**
@@ -334,32 +335,32 @@ class UserLoop {
          */
         switch (type) {
             case FatOscillator.type:
-                this.env_val = 10;
                 this.color=blue;
+                this.instrument = sawtooth;
                 return new Tone.Loop(function (time) {
                     sawtooth.triggerAttackRelease(this.note,"8n.", time);
                 }.bind(this), "8t");
             case SimpleSynth.type:
-                this.env_val = 20;
                 this.color=peach;
+                this.instrument = simpleSynth;
                 return new Tone.Loop(function (time) {
                     simpleSynth.triggerAttackRelease(this.note, "8n.", time);
                 }.bind(this), "8t");
             case Kalimba.type:
-                this.env_val = 30;
                 this.color=blue;
+                this.instrument = kalimba;
                 return new Tone.Loop(function (time) {
                     kalimba.triggerAttackRelease(this.note, "8n.", time);
                 }.bind(this), "8t");
             case Pianoetta.type:
-                this.env_val = 24;
                 this.color=red;
+                this.instrument = pianoetta;
                 return new Tone.Loop(function (time) {
                     pianoetta.triggerAttackRelease(this.note, "8n.", time);
                 }.bind(this), "8t");
             case Synth1.type:
-                this.env_val = 15;
                 this.color=green;
+                this.instrument = synth1;
                 return new Tone.Loop(function (time) {
                     synth1.triggerAttackRelease(this.note, "8n.", time);
                 }.bind(this), "8t");
@@ -371,6 +372,9 @@ class UserLoop {
     }
     updateNote(note){
         this.note = note;
+    }
+    getEnvValue(){
+        return this.instrument.envelope.value;
     }
     hasStoped(){
         return this.loop.state == "stopped";

@@ -14,10 +14,12 @@ socket.on('join room', function(msg){
     }else if (msg['success'] != undefined){
         console.log('You joined ' + msg['room']);
         $.ajax(msg['url']).done(function(reply){
+            $('#title').removeClass("glow").addClass("muted-glow");
             $('#container').html(reply);
         });
     }else{
         console.log(msg['users'] + ' joined ' + msg['room']);
+        users = msg['users'];
     }
 });
 

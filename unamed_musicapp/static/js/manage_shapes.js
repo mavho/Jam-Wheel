@@ -30,7 +30,7 @@ const yellow = "#D9B33A";
 These vars refer to this USER's sounds
  */
 var keys = [];
-var curr_type = "SYNTH";
+var curr_type = "KALIMBA";
 var curr_note = "";
 var canvas_background = blue;
 //color between the keys
@@ -51,6 +51,7 @@ socket.on('press key', function(msg){
     if(userloops[msg['user']] !== undefined){
         userloops[msg['user']].startLoop();
     }
+    drawIncomingNotes(150,40);
 });
 
 socket.on('disconnect',function(msg){
@@ -61,7 +62,7 @@ socket.on('disconnect',function(msg){
         user_count -= 1;
         console.log(user_count);
     }
-
+    //updateUserIcons();
 });
 
 socket.on('release key', function(msg){
@@ -71,6 +72,39 @@ socket.on('release key', function(msg){
     }
 });
 
+function updateUserIcons(){
+    let top_div = createDiv();
+    top_div.addClass('column is-centered');
+    top_div.position(can_width - 110,can_height/2);
+    top_div.parent('sketch')
+
+    let box = createDiv();
+    box.addClass("box");
+    box.parent(top_div)
+
+    let ancestor_tile = createDiv();
+    ancestor_tile.addClass("tile is-vertical is-ancestor");
+    ancestor_tile.parent(box)
+
+    for(let user of users){
+        let parent_tile = createDiv();
+        parent_tile.addClass("tile is parent")
+        parent_tile.parent(ancestor_tile)
+
+        let child_tile = createDiv();
+        child_tile.addClass("tile is-child has-text-centered")
+        
+        child_tile.parent(parent_tile);
+
+        let span = createSpan();
+        span.addClass("icon is-large");
+        span.parent(child_tile);
+
+        let icon = createElement('i');
+        icon.addClass("fas fa-3x fa-laugh")
+        icon.parent(span);
+    }
+}
 // Background base
 var membrane_synth = new Tone.MembraneSynth(
     {
@@ -98,13 +132,13 @@ function setup(){
     var canvas = createCanvas(can_width,can_height);
     canvas.parent('sketch')
     createSwitcher();
+    //updateUserIcons();
     //Vars for the circle
     updateKeys(curr_type);
 
-    canvas.style('display','block')
-    background(255,69,0);
+    canvas.style('display','block');
 
-
+    frameRate(45);
     document.querySelector('#toggle').addEventListener('click', async () => {
         await Tone.start()
         console.log('audio is ready')
@@ -142,7 +176,7 @@ function setup(){
 function createSwitcher(){
     let top_div = createDiv();
     top_div.addClass('column is-centered');
-    top_div.position(0,height/2);
+    top_div.position(0,can_height/2);
     top_div.parent('sketch')
 
     let box = createDiv();
@@ -238,17 +272,18 @@ function updateKeys(type){
         counter++;
     }
 }
-
+// improve this run time.
 function drawIncomingNotes(r,val){
     if(Object.keys(userloops).length == 0){
         return;
     }
     for(let loop of Object.keys(userloops)){
-        let env = userloops[loop].env_val;
         if(userloops[loop].isPlaying()){
+            let env = userloops[loop].getEnvValue();
             stroke(userloops[loop].color);
+            strokeWeight(7);
             //draws an ellipse
-            for (var i = 0; i < 3; i++){
+            for (let i = 0; i < 3; i++){
                 let x2 = (r + env*200)*tan(2*PI/env);
                 let y2 = (r + env*200)*tan(2*PI/env);
                 ellipse(cir_centerX,cir_centerY, x2, y2);
@@ -256,20 +291,21 @@ function drawIncomingNotes(r,val){
         }
     }
 }
+r = 150;
 //Draw the shapes continuously
 function draw(){
     background(canvas_background);
-    let r = 150;
+    r = 150;
     noFill();
     stroke(197,185,166);
     strokeWeight(5);
-    let envelope = membrane_synth.envelope.value;
+    envelope = membrane_synth.envelope.value;
     for (var i = 0; i < 3; i++){
         x2 = (r + envelope*200)*tan(2*PI/envelope);
         y2 = (r + envelope*200)*tan(2*PI/envelope);
         ellipse(cir_centerX,cir_centerY, x2, y2);
     }
-
+    //TODO: make this more efficient.
     drawIncomingNotes(r,40);
 
     stroke(inline_color);
@@ -285,6 +321,7 @@ function mousePressed(){
     for(let key of keys){
         if(key.inTriangle(mouseX,mouseY)){
             key.clicked();
+            
             curr_note = key.note;
             pressed_key = key;
             socket.emit('press key', {'note': pressed_key.note,'type': pressed_key.type,'toggle':true,'channel':room_name, 'user_name':user_name});
