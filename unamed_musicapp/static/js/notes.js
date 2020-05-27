@@ -317,7 +317,7 @@ class Kalimba extends KeyNote{
 
 }
 
-class User {
+class UserLoop {
     constructor(type,note) {
         //this value is used in drawIncomingNotes
         //todo set this up

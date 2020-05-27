@@ -36,34 +36,38 @@ var canvas_background = blue;
 //color between the keys
 var inline_color = blue;
 
-//represents the users in this server
-var users = {};
 
-// The idea is to spawn a loop for each of the users.
-// We track whether or not the loop has started or ended.
+//Handles the user loops in this server
+var userloops = {};
+
+// Spawn a loop when the user presses a key.
 socket.on('press key', function(msg){
     console.log(msg);
-    if(msg['user'] in users && users[msg['user']].type == msg['type']){
-        users[msg['user']].updateNote(msg['note']);
+    if(msg['user'] in userloops && userloops[msg['user']].type == msg['type']){
+        userloops[msg['user']].updateNote(msg['note']);
     }else{
-        users[msg['user']] = new User(msg['type'],msg['note']); 
+        userloops[msg['user']] = new UserLoop(msg['type'],msg['note'],msg['user']); 
     }
-    if(users[msg['user']] !== undefined){
-        users[msg['user']].startLoop();
+    if(userloops[msg['user']] !== undefined){
+        userloops[msg['user']].startLoop();
     }
 });
 
 socket.on('disconnect',function(msg){
     console.log("A client " + msg['user'] + " has disconnected");
-    if (msg['user'] in users){
+    if (msg['user'] in userloops && msg['user'] in users){
+        delete userloops[msg['user']];
         delete users[msg['user']];
+        user_count -= 1;
+        console.log(user_count);
     }
+
 });
 
 socket.on('release key', function(msg){
     console.log("release key " + msg);
-    if(users[msg['user']] !== undefined){
-        users[msg['user']].endLoop();
+    if(userloops[msg['user']] !== undefined){
+        userloops[msg['user']].endLoop();
     }
 });
 
@@ -236,13 +240,13 @@ function updateKeys(type){
 }
 
 function drawIncomingNotes(r,val){
-    if(Object.keys(users).length == 0){
+    if(Object.keys(userloops).length == 0){
         return;
     }
-    for(let loop of Object.keys(users)){
-        let env = users[loop].env_val;
-        if(users[loop].isPlaying()){
-            stroke(users[loop].color);
+    for(let loop of Object.keys(userloops)){
+        let env = userloops[loop].env_val;
+        if(userloops[loop].isPlaying()){
+            stroke(userloops[loop].color);
             //draws an ellipse
             for (var i = 0; i < 3; i++){
                 let x2 = (r + env*200)*tan(2*PI/env);
