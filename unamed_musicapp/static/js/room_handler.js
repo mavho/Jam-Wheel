@@ -1,4 +1,4 @@
-var socket = io.connect('http://'+document.domain + ':' + location.port +'/test_room');
+var socket = io.connect('https://'+document.domain + ':' + location.port +'/test_room');
 var room_name = "";
 var user_name = "";
 var user_count = 0;
