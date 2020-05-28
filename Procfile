@@ -1,0 +1,1 @@
+web: gunicorn  -k gevent -w 1 --chdir unamed_musicapp run_server:app

@@ -1,1 +1,0 @@
-gunicorn -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker -w 4 module:run_server
