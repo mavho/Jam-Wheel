@@ -8,7 +8,6 @@ var users = {}
 
 
 socket.on('join room', function(msg){
-    console.log(msg)
     if(msg['success'] == false){
         alert('Duplicate username');
     }else if (msg['success'] != undefined){

@@ -42,7 +42,6 @@ var userloops = {};
 
 // Spawn a loop when the user presses a key.
 socket.on('press key', function(msg){
-    console.log(msg);
     if(msg['user'] in userloops && userloops[msg['user']].type == msg['type']){
         userloops[msg['user']].updateNote(msg['note']);
     }else{
@@ -60,13 +59,12 @@ socket.on('disconnect',function(msg){
         delete userloops[msg['user']];
         delete users[msg['user']];
         user_count -= 1;
-        console.log(user_count);
     }
     //updateUserIcons();
 });
 
 socket.on('release key', function(msg){
-    console.log("release key " + msg);
+    //console.log("release key " + msg);
     if(userloops[msg['user']] !== undefined){
         userloops[msg['user']].endLoop();
     }
@@ -141,7 +139,6 @@ function setup(){
     frameRate(45);
     document.querySelector('#toggle').addEventListener('click', async () => {
         await Tone.start()
-        console.log('audio is ready')
         Tone.Transport.toggle();
     });
     document.querySelector('#FAT').addEventListener('click', async() =>{
@@ -337,7 +334,6 @@ function mouseDragged(){
         if(key.inTriangle(mouseX,mouseY)){
             //Only triggers if the key is different
             if(key !== pressed_key){
-                console.log("MOUSE DRAGGED")
                 pressed_key.released();
                 socket.emit('release key', {'channel':room_name, 'user_name':user_name});
                 pressed_key = key;
