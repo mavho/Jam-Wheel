@@ -3,7 +3,7 @@ from flask_socketio import SocketIO,emit, join_room, leave_room, rooms
 from flask_sqlalchemy import SQLAlchemy
 import sys,requests
 from config import Config
-from shared_state import SharedState
+#from shared_state import SharedState
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -13,7 +13,7 @@ db = SQLAlchemy(app)
 sk =app.config.get('SECRET_KEY')
 addr = 'localhost',5000
 
-ss = SharedState(addr,sk)
+#ss = SharedState(addr,sk)
 
 ### sid: (user,room)
 sid_username_room = {}
