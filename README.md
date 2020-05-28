@@ -1,4 +1,5 @@
 # Jam-Wheel
+![hmm](jam_wheel.PNG)
 ## What is this?
 This is a web application for users to jam together! Just enter a room ID and username, and you're connected to users in that room. Play notes on the jam wheel to make beats with other users.
 
