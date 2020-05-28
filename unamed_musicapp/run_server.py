@@ -3,7 +3,7 @@ from flask_socketio import SocketIO,emit, join_room, leave_room, rooms
 from flask_sqlalchemy import SQLAlchemy
 import sys,requests
 from config import Config
-#from shared_state import SharedState
+from shared_state import SharedState
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -13,7 +13,7 @@ db = SQLAlchemy(app)
 sk =app.config.get('SECRET_KEY')
 addr = 'localhost',5000
 
-#ss = SharedState(addr,sk)
+ss = SharedState(addr,sk)
 
 ### sid: (user,room)
 sid_username_room = {}
@@ -35,7 +35,6 @@ def dbug():
 
 def isDupUser(room,user_name):
     for user in room_list[room]:
-        print(user,file=sys.stderr)
         if user == user_name:
             return True 
     return False 
@@ -60,7 +59,7 @@ def join(payload):
     if request.sid not in sid_username_room:
         sid_username_room[request.sid] = (user_name,room)
     
-    print(request.sid + ' joined ' + room, file=sys.stderr)
+    print(request.sid + ' joined ' + room,file=sys.stdout)
     emit('join room', {'room':room,'users':room_list[room]},room=room,include_self=True)
 
 @socketio.on('press key',namespace='/test_room')
@@ -80,12 +79,12 @@ def release_key(payload):
 
 @socketio.on('connect', namespace='/test_room')
 def test_connect():
-    print(request.sid + ' connected',file=sys.stderr)
+    print(request.sid + ' connected',file=sys.stdout)
     emit('my response', {'data': 'Connected'})
 
 @socketio.on('disconnect', namespace='/test_room')
 def test_disconnect():
-    print(request.sid + ' Client disconnected', file=sys.stderr)
+    print(request.sid + ' Client disconnected',file=sys.stdout)
     if request.sid in sid_username_room:
         data = sid_username_room[request.sid]
         #(user,room)
@@ -98,5 +97,6 @@ def test_disconnect():
         emit('disconnect', {'user': data[0]}, room=data[1])
 
 if __name__ == '__main__':
+    print("Hello")
     app.debug=True
     socketio.run(app,host='localhost')
