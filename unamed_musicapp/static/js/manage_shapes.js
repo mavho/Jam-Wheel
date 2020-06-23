@@ -137,10 +137,6 @@ function setup(){
     canvas.style('display','block');
 
     frameRate(45);
-    document.querySelector('#toggle').addEventListener('click', async () => {
-        await Tone.start()
-        Tone.Transport.toggle();
-    });
     document.querySelector('#FAT').addEventListener('click', async() =>{
         updateKeys(FatOscillator.type);
     });
@@ -167,7 +163,7 @@ function setup(){
     Tone.Transport.loopEnd = '1:0:0'
     Tone.Transport.loop = true
     //Start the loop
-    //Tone.Transport.toggle();
+    Tone.Transport.toggle();
 }
 //DOM's to switch between instruments
 function createSwitcher(){
@@ -184,9 +180,9 @@ function createSwitcher(){
     ancestor_tile.addClass("tile is-vertical is-ancestor");
     ancestor_tile.parent(box)
 
-    let ids= ["toggle","FAT","PIANOETTA","SYNTH","KALIMBA","SYNTH1"]
-    let colors = ["purple","red","peach","yellow","green","blue"]
-    for(let i=0; i < 6; i++){
+    let ids= ["FAT","PIANOETTA","SYNTH","KALIMBA","SYNTH1"]
+    let colors = ["red","peach","yellow","green","blue"]
+    for(let i=0; i < 5; i++){
         let parent_tile = createDiv();
         parent_tile.addClass("tile is parent")
         parent_tile.parent(ancestor_tile)

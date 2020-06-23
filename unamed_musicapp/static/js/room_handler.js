@@ -1,4 +1,4 @@
-var socket = io.connect('https://'+document.domain + ':' + location.port +'/test_room');
+var socket = io.connect('http://'+document.domain + ':' + location.port +'/test_room');
 var room_name = "";
 var user_name = "";
 var user_count = 0;
@@ -33,7 +33,17 @@ document.querySelector("#room_join").addEventListener("click", async() =>{
     }
 });
 
-
+function textCounter(field, count_field_id, limit){
+    var count_field = $(count_field_id);
+    if (field.value.length > limit){
+        //retains max limit
+        field.value = field.value.substring(0,limit);
+        $(field).addClass('is-danger');
+    }else{
+        $(field).removeClass('is-danger');
+        count_field.text(limit-field.value.length);
+    }
+}
 function checkInput(input){
     //check if in is empty, blank, null, ud, or greater than 8 chars
     if(!input || /^\s*$/.test(input) || input.length > 8){
