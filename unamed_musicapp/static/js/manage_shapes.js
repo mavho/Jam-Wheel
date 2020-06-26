@@ -243,7 +243,7 @@ function updateKeys(type){
                     hex_color_green[counter],C_MAJ_SCALE[counter]);
                 keys.push(tri);
                 canvas_background = green;
-                inline_color = peach;
+                inline_color = blue;
                 break;
             case Pianoetta.type:
                 var tri = new Pianoetta(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,

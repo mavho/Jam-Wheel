@@ -39,7 +39,7 @@ def isDupUser(room,user_name):
             return True 
     return False 
 
-@socketio.on('join room', namespace='/test_room')
+@socketio.on('join room', namespace='/jam_room')
 def join(payload):
     room = payload['room'] 
     user_name = payload['user_name']
@@ -62,7 +62,7 @@ def join(payload):
     print(request.sid + ' joined ' + room,file=sys.stdout)
     emit('join room', {'room':room,'users':room_list[room]},room=room,include_self=True)
 
-@socketio.on('press key',namespace='/test_room')
+@socketio.on('press key',namespace='/jam_room')
 def press_key(payload):
     room = payload['channel']
     user_name = payload['user_name']
@@ -70,19 +70,19 @@ def press_key(payload):
     instrument = payload['type']
     emit('press key',{'note':note, 'type':instrument, 'room':room, 'user_name':user_name}, room=room, include_self=False)
 
-@socketio.on('release key', namespace='/test_room')
+@socketio.on('release key', namespace='/jam_room')
 def release_key(payload):
     room = payload['channel'] 
     user_name = payload['user_name']
     emit('release key',{'room':room, 'user_name':user_name}, room=room,include_self=False)
 
 
-@socketio.on('connect', namespace='/test_room')
+@socketio.on('connect', namespace='/jam_room')
 def test_connect():
     print(request.sid + ' connected',file=sys.stdout)
     emit('my response', {'data': 'Connected'})
 
-@socketio.on('disconnect', namespace='/test_room')
+@socketio.on('disconnect', namespace='/jam_room')
 def test_disconnect():
     print(request.sid + ' Client disconnected',file=sys.stdout)
     if request.sid in sid_username_room:
@@ -97,6 +97,5 @@ def test_disconnect():
         emit('disconnect', {'user': data[0]}, room=data[1])
 
 if __name__ == '__main__':
-    print("Hello")
     app.debug=True
     socketio.run(app,host='localhost')
