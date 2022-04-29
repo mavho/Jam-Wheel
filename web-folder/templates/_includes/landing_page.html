@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    <meta charset="utf08">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Jam Wheel</title>
+    <link rel="stylesheet" href="static/css/bulma.css"></link>
+    <link rel="stylesheet" href="static/css/style.css"></link>
+    <link rel="stylesheet"  href="static/css/badscript-regular.woff"></link>
+    <link rel="stylesheet"  href="static/css/badscript-regular.woff2"></link>
+    <script src="https://kit.fontawesome.com/1039dec531.js" crossorigin="anonymous"></script>
+    <script src="static/js/node_modules/socket.io/client-dist/socket.io.min.js"></script>
+    <script src="static/js/node_modules/jquery/dist/jquery.min.js"></script>
+    <section  class="hero has-background-black is-bold">
+        <div class="hero-body">
+            <div class="container">
+                <h6 id="title"class="title is-1 bad-script has-text-centered glow has-text-light">
+                    Jam Wheel
+                </h6>
+            </div>
+        </div>
+    </section>
+
+    <body>
+        <section id="container" class="is-widescreen is-fullwidth has-background-black">
+            <div class="columns is-centered">
+                <div class="column is-half stretchVert">
+                    <div id="window" class="tile box is-ancestor is-vertical">
+                        <div class="tile is-parent">
+                            <h1 class="has-text-grey-lighter">Jam Wheel is an interactive multiplayer jam session. Simply enter a room ID
+                                and username and start jamming!</h1>
+                        </div>
+                        <div class="tile is-parent">
+                            <div class="tile is-child is-vertical">
+                                <input id="room_input" class="input level-item  has-text-grey-lighter" type="text" placeholder="Enter Room Name..."
+                                onkeydown="textCounter(this,'#room_counter',8);" onkeyup="textCounter(this,'#room_counter',8);">
+                                </input>
+                                <div class="has-text-grey-lighter"id="room_counter">8</div>
+                            </div>
+                            <div class="tile is-child is-vertical">
+                                <input id="username_input" class="input level-item has-text-grey-lighter" type="text" placeholder="Enter UserName..."
+                                onkeydown="textCounter(this,'#user_counter',16);" onkeyup="textCounter(this,'#user_counter',16);">
+                                </input>
+                                <div class="has-text-grey-lighter has-text-right"id="user_counter">16</div>
+                            </div>
+                        </div>
+                        <div class="tile is-parent">
+                            <div class="tile is-child">
+                                <span id="room_join" class="button is-flex purple-button has-text-light">Join Room!</span>
+                            </div>
+                        </div>
+
+                        <div class="tile is-parent">
+                            <div class="tile is-child">
+                                <p class="has-text-grey-lighter">
+                                    <strong class="has-text-grey-lighter">Jam Wheel</strong> is created by <a
+                                        href="https://github.com/mavho/Jam-Wheel">Maverick Ho</a>.
+                                    This site is still under active development, there is still much to work on. If you want to help
+                                    collaborate email me at <a href = "mailto: homaverick@gmail.com">homaverick@gmail.com</a> and I can set up collaboraters.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </body>
+
+    <script src="static/js/room_handler.js"></script>
+
+</html>
