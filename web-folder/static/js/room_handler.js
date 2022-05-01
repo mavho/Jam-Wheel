@@ -33,9 +33,9 @@ document.querySelector("#room_join").addEventListener("click", async() =>{
             socket.onopen = function(e){
                 console.log("Connection established");
 
-                socket.send({'topics':[room_name]});
+                socket.send(JSON.stringify({'topics':[room_name]}));
 
-                $.ajax(`http://${document.domain}:${location.port}/templates/_includes/circle_beta.html`).done(function(reply){
+                $.ajax(`http://${document.domain}:${location.port}/templates/_includes/jamwheel.html`).done(function(reply){
                     $('#title').removeClass("glow").addClass("muted-glow");
                     $('#container').html(reply);
                 });
