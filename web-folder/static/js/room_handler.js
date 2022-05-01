@@ -1,17 +1,9 @@
-/*
-//var socket = io.connect('http://'+document.domain + ':' + location.port +'/jam_room');
-var socket = new WebSocket(`ws://${document.domain}:${location.port}/ws`)
-
-
-*/
 var socket;
 var room_name = "";
 var user_name = "";
 var user_count = 0;
 
 var users = {}
-
-
 
 document.querySelector("#room_join").addEventListener("click", async() =>{
     room_name = document.getElementById("room_input").value;
