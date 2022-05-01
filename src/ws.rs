@@ -11,6 +11,20 @@ use warp::ws::{WebSocket,Message};
 pub struct TopicsRequest{
     topics: Vec<String>
 }
+#[derive(Deserialize, Debug)]
+pub struct KeyNoteRequest{
+    note: String,
+    pressed_key: String,
+    username: String
+}
+#[derive(Deserialize,Debug)]
+#[serde(untagged)]
+//Untagged means that there is no explicit tag identifying which variant the data contains.
+//Serde will try to match the data against each variant with deserialize
+enum Request {
+    KeyNote(KeyNoteRequest),
+    Topics(TopicsRequest)
+}
 pub async fn client_connection(ws: WebSocket,id: String,clients: Clients, mut client: Client){
     println!("establishing client connection... {:?}", ws);
 
@@ -61,18 +75,26 @@ async fn client_msg(client_id: &str, msg:Message, clients:&Clients){
         Err(_)=> return,
     };
 
-    //client sent a JSON to the WS, parse the JSON.
-    let topics_req: TopicsRequest = match from_str(&message){
+    //Match incoming message against the Enum Request variants
+    let request = match from_str::<Request>(&message){
         Ok(v) => v,
-        Err(e) =>{
-            eprintln!("Error while parsing message to topics request: {}",e);
+        Err(e)=>{
+            eprintln!("Error while parsing message to request: {}",e);
             return;
         }
     };
 
-    //Update client's incoming topics
-    let mut locked = clients.write().await;
-    if let Some(v) = locked.get_mut(client_id){
-        v.topics = topics_req.topics;
+    //destructure the request, and process them based on the type of request
+    match request {
+        Request::KeyNote(KeyNoteRequest{note,pressed_key,username}) =>{
+            println!("keynote {} key {} user {}",note,pressed_key,username);
+        },
+        Request::Topics(TopicsRequest{topics}) =>{
+            println!("topics {:?}",topics);
+            let mut locked = clients.write().await;
+            if let Some(v) = locked.get_mut(client_id){
+                v.topics = topics;
+            }
+        }
     }
 }
