@@ -2,7 +2,6 @@
 use std::{collections::HashMap, convert::Infallible, sync::Arc, str::FromStr};
 use tokio::sync::{mpsc, RwLock};
 use warp:: {ws::Message, Filter, Rejection};
-use warp::{filters::BoxedFilter, http::Uri, path::FullPath, redirect,  Reply};
 mod handlers;
 mod ws;
 
@@ -12,7 +11,7 @@ const WEB_FOLDER: &str = "web-folder/";
 #[derive(Debug,Clone)]
 pub struct Client{
     //rand uuid
-    pub user_id: usize,
+    pub username: String,
     pub topics :Vec<String>,
     //Allows us to send messages to UnboundedReceiver (client)
     pub sender: Option<mpsc::UnboundedSender<std::result::Result<Message, warp::Error>>>,
@@ -37,12 +36,15 @@ async fn main(){
     let index = warp::get().and(warp::path::end())
         .and(warp::fs::file(format!("{}/templates/_includes/landing_page.html",WEB_FOLDER)));
 
+    let templates = warp::get().and(warp::path!("templates"))
+        .and(warp::fs::dir(format!("{}/templates/_includes/",WEB_FOLDER)));
+
     let js =  warp::get().and(warp::path!("static"))
         .and(warp::fs::dir(format!("{}/static/js/",WEB_FOLDER)));
 
     
 
-    let static_site = html_content.or(index).or(js);
+    let static_site = index.or(templates).or(js).or(html_content);
 
     // GET Health Check route
     let health_route = warp::path!("health")
@@ -75,8 +77,7 @@ async fn main(){
         .and(with_clients(clients.clone()))
         .and_then(handlers::ws_handler);
 
-    let routes = root_redirect()
-        .or(static_site)
+    let routes = static_site
         .or(health_route)
         .or(register_route)
         .or(ws_route)
@@ -86,24 +87,6 @@ async fn main(){
     println!("Starting Server");
 
     warp::serve(routes).run(([0,0,0,0],8000)).await;
-}
-
-fn root_redirect() -> BoxedFilter<(impl Reply,)> {
-    warp::path::full()
-        .and_then(move |path: FullPath| async move {
-            let path = path.as_str();
-
-            // do not redirect if the path ends in a trailing slash
-            // or contains a period (indicating a specific file, e.g. style.css)
-            if path.ends_with("/") || path.contains(".") {
-                return Err(warp::reject());
-            }
-
-            Ok(redirect::redirect(
-                Uri::from_str(&[path, "/"].concat()).unwrap(),
-            ))
-        })
-        .boxed()
 }
 //Extracts the clients data. Return a filter matching any route and composes the filter with a function
 fn with_clients(clients: Clients) -> impl Filter<Extract = (Clients,),Error = Infallible> + Clone {

@@ -7,7 +7,7 @@ use warp::{http::StatusCode, reply::json, ws::Message, Reply};
 //For Rest API (registering users)
 #[derive(Deserialize,Debug)]
 pub struct RegisterRequest {
-    user_id: usize,
+    username: String,
 }
 
 #[derive(Serialize,Debug)]
@@ -18,7 +18,7 @@ pub struct RegisterResponse {
 #[derive(Deserialize,Debug)]
 pub struct Event{
     topic: String,
-    user_id: Option<usize>,
+    username: Option<String>,
     message:String
 }
 
@@ -42,8 +42,8 @@ pub async fn publish_handler(body: Event, clients: Clients) -> Result<impl Reply
         .read().await
         .iter()
         //Clients that aren't the sender
-        .filter(|(_, client)| match body.user_id {
-            Some(v) => client.user_id == v,
+        .filter(|(_, client)| match body.username.clone() {
+            Some(v) => client.username == v,
             None => true,
         })
         //clients subscribed to the topic
@@ -61,22 +61,22 @@ pub async fn publish_handler(body: Event, clients: Clients) -> Result<impl Reply
 
 //Handles registering a user. A user id is sent in body
 pub async fn register_handler(body: RegisterRequest, clients: Clients) -> Result<impl Reply> {
-    let user_id = body.user_id;
+    let username = body.username;
     let uuid = Uuid::new_v4().simple().to_string();
 
-    register_client(uuid.clone(),user_id,clients).await;
+    register_client(uuid.clone(),username,clients).await;
     Ok(json(&RegisterResponse {
-        url: format!("ws://127.0.0.1:8000/ws/{}", uuid),
+        url: format!("{}", uuid),
     }))
 }
 
 //Creates new client, and adds them to client list.
-async fn register_client(id: String, user_id: usize, clients: Clients){
+async fn register_client(id: String, username: String, clients: Clients){
     //write is a Read write lock
     clients.write().await.insert(
         id,
         Client {
-            user_id,
+            username,
             topics: vec![String::from("cats")],
             sender: None
         },

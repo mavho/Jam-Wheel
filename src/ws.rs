@@ -60,9 +60,6 @@ async fn client_msg(client_id: &str, msg:Message, clients:&Clients){
         Ok(v) => v,
         Err(_)=> return,
     };
-    if message == "ping" || message =="ping\n"{
-        return;
-    }
 
     //client sent a JSON to the WS, parse the JSON.
     let topics_req: TopicsRequest = match from_str(&message){

@@ -39,7 +39,7 @@ var inline_color = blue;
 
 //Handles the user loops in this server
 var userloops = {};
-
+/*
 // Spawn a loop when the user presses a key.
 socket.on('press key', function(msg){
     if(msg['user'] in userloops && userloops[msg['user']].type == msg['type']){
@@ -103,6 +103,7 @@ function updateUserIcons(){
         icon.parent(span);
     }
 }
+*/
 // Background base
 var membrane_synth = new Tone.MembraneSynth(
     {
@@ -318,7 +319,7 @@ function mousePressed(){
             
             curr_note = key.note;
             pressed_key = key;
-            socket.emit('press key', {'note': pressed_key.note,'type': pressed_key.type,'toggle':true,'channel':room_name, 'user_name':user_name});
+            //socket.emit('press key', {'note': pressed_key.note,'type': pressed_key.type,'toggle':true,'channel':room_name, 'user_name':user_name});
         }
     }
     return false;
@@ -332,10 +333,10 @@ function mouseDragged(){
             //Only triggers if the key is different
             if(key !== pressed_key){
                 pressed_key.released();
-                socket.emit('release key', {'channel':room_name, 'user_name':user_name});
+                //socket.emit('release key', {'channel':room_name, 'user_name':user_name});
                 pressed_key = key;
                 pressed_key.playDragged();
-                socket.emit('press key', {'note': pressed_key.note,'type': pressed_key.type,'toggle':true,'channel':room_name, 'user_name':user_name});
+                //socket.emit('press key', {'note': pressed_key.note,'type': pressed_key.type,'toggle':true,'channel':room_name, 'user_name':user_name});
                 curr_note = pressed_key.note;
             }
             pressed_key.dragged();
@@ -346,7 +347,7 @@ function mouseDragged(){
 
 function mouseReleased(){
     pressed_key.released();
-    socket.emit('release key',{'channel':room_name, 'user_name':user_name});
+    //socket.emit('release key',{'channel':room_name, 'user_name':user_name});
     return false;
 }
 //Code that deals with window resize should be here. 
