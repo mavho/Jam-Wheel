@@ -40,39 +40,32 @@ var inline_color = blue;
 //Handles the user loops in this server
 var userloops = {};
 socket.onmessage = function(event){
-    console.log(event.data);
+    console.log(event);
+    var msg = JSON.parse(event.data);
+    console.log(msg);
+    switch(msg['event']){
+        case "key":
+            console.log("key msg");
+            if(msg['username'] in userloops && userloops[msg['username']].type == msg['instrument']){
+                userloops[msg['username']].updateNote(msg['note']);
+            }else{
+                userloops[msg['username']] = new UserLoop(msg['instrument'],msg['note'],msg['username']); 
+            }
+            if(userloops[msg['username']] !== undefined){
+                userloops[msg['username']].startLoop();
+            }
+            drawIncomingNotes(150,40);
+            break;
+        case "release": 
+            console.log("release");
+            if(userloops[msg['username']] !== undefined){
+                userloops[msg['username']].endLoop();
+            }
+            break;
+    }
 }
 /*
 // Spawn a loop when the user presses a key.
-socket.on('press key', function(msg){
-    if(msg['user'] in userloops && userloops[msg['user']].type == msg['type']){
-        userloops[msg['user']].updateNote(msg['note']);
-    }else{
-        userloops[msg['user']] = new UserLoop(msg['type'],msg['note'],msg['user']); 
-    }
-    if(userloops[msg['user']] !== undefined){
-        userloops[msg['user']].startLoop();
-    }
-    drawIncomingNotes(150,40);
-});
-
-socket.on('disconnect',function(msg){
-    console.log("A client " + msg['user'] + " has disconnected");
-    if (msg['user'] in userloops && msg['user'] in users){
-        delete userloops[msg['user']];
-        delete users[msg['user']];
-        user_count -= 1;
-    }
-    //updateUserIcons();
-});
-
-socket.on('release key', function(msg){
-    //console.log("release key " + msg);
-    if(userloops[msg['user']] !== undefined){
-        userloops[msg['user']].endLoop();
-    }
-});
-
 function updateUserIcons(){
     let top_div = createDiv();
     top_div.addClass('column is-centered');
@@ -323,6 +316,7 @@ function mousePressed(){
             curr_note = key.note;
             pressed_key = key;
             let payload = {
+                event: "key",
                 note: pressed_key.note,
                 instrument: pressed_key.type,
                 toggle: true,
@@ -343,11 +337,17 @@ function mouseDragged(){
             //Only triggers if the key is different
             if(key !== pressed_key){
                 pressed_key.released();
-                //socket.emit('release key', {'channel':room_name, 'user_name':user_name});
+                let release_key = {
+                    event:"release",
+                    channel:room_name,
+                    username: user_name
+                }
+                socket.send(JSON.stringify(release_key));
                 pressed_key = key;
                 pressed_key.playDragged();
                 
                 let payload = {
+                    event:"key",
                     note: pressed_key.note,
                     instrument: pressed_key.type,
                     toggle: true,
@@ -366,7 +366,12 @@ function mouseDragged(){
 
 function mouseReleased(){
     pressed_key.released();
-    //socket.emit('release key',{'channel':room_name, 'user_name':user_name});
+    let release_key = {
+        event:"release",
+        channel:room_name,
+        username: user_name
+    }
+    socket.send(JSON.stringify(release_key));
     return false;
 }
 //Code that deals with window resize should be here. 

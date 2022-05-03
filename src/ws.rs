@@ -12,7 +12,15 @@ pub struct TopicsRequest{
     topics: Vec<String>
 }
 #[derive(Deserialize,Serialize,Clone,Debug)]
+pub struct ReleaseRequest{
+    event: String,
+    username: String,
+    channel: String
+}
+
+#[derive(Deserialize,Serialize,Clone,Debug)]
 pub struct KeyNoteRequest{
+    event: String,
     note: String,
     instrument: String,
     toggle: bool,
@@ -25,7 +33,8 @@ pub struct KeyNoteRequest{
 //Serde will try to match the data against each variant with deserialize
 enum Request {
     KeyNote(KeyNoteRequest),
-    Topics(TopicsRequest)
+    Topics(TopicsRequest),
+    Release(ReleaseRequest)
 }
 pub async fn client_connection(ws: WebSocket,id: String,clients: Clients, mut client: Client){
     println!("establishing client connection... {:?}", ws);
@@ -88,7 +97,7 @@ async fn client_msg(client_id: &str, msg:Message, clients:&Clients){
 
     //destructure the request, and process them based on the type of request
     match request {
-        Request::KeyNote(KeyNoteRequest{note,instrument,username,channel,toggle}) =>{
+        Request::KeyNote(KeyNoteRequest{event,note,instrument,username,channel,toggle}) =>{
             //println!("keynote {} instrument {} user {} channel {} toggle {}",note, instrument,username, channel,toggle);
 
             clients
@@ -103,10 +112,33 @@ async fn client_msg(client_id: &str, msg:Message, clients:&Clients){
                 .for_each(|(_, client)| {
                     //We're using the variables (note,instrument..) outside this closure. We need to clone it
                     let forwarded_keynote = Request::KeyNote(KeyNoteRequest{
-                        note:note.clone(),instrument:instrument.clone(),username:username.clone(),channel:channel.clone(),toggle:toggle.clone()
+                        event:event.clone(),note:note.clone(),instrument:instrument.clone(),username:username.clone(),channel:channel.clone(),toggle:toggle.clone()
                     });
 
                     let json = serde_json::to_string(&forwarded_keynote).unwrap();
+                    //Send message from sender to clients.
+                    if let Some(sender) = &client.sender {
+                        let _ = sender.send(Ok(Message::text(json)));
+                    }
+                });
+        },
+        Request::Release(ReleaseRequest{event,username,channel}) =>{
+            clients
+                .read().await
+                .iter()
+                //Clients that aren't the sender
+                .filter(|(_, client)| match username.clone() {
+                    v => client.username != v,
+                })
+                //clients subscribed to the topic
+                .filter(|(_, client)| client.topics.contains(&channel))
+                .for_each(|(_, client)| {
+                    //We're using the variables (note,instrument..) outside this closure. We need to clone it
+                    let forwarded_release = Request::Release(ReleaseRequest{
+                        event:event.clone(),username:username.clone(),channel:channel.clone()
+                    });
+
+                    let json = serde_json::to_string(&forwarded_release).unwrap();
                     //Send message from sender to clients.
                     if let Some(sender) = &client.sender {
                         let _ = sender.send(Ok(Message::text(json)));
