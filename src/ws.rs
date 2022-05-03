@@ -1,23 +1,25 @@
 use crate::{Client,Clients};
 use futures::{FutureExt, StreamExt};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::from_str;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use warp::ws::{WebSocket,Message};
 
-#[derive(Deserialize,Debug)]
+#[derive(Deserialize,Serialize,Clone,Debug)]
 pub struct TopicsRequest{
     topics: Vec<String>
 }
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize,Serialize,Clone,Debug)]
 pub struct KeyNoteRequest{
     note: String,
-    pressed_key: String,
-    username: String
+    instrument: String,
+    toggle: bool,
+    username: String,
+    channel: String
 }
-#[derive(Deserialize,Debug)]
+#[derive(Deserialize,Serialize,Clone,Debug)]
 #[serde(untagged)]
 //Untagged means that there is no explicit tag identifying which variant the data contains.
 //Serde will try to match the data against each variant with deserialize
@@ -86,11 +88,33 @@ async fn client_msg(client_id: &str, msg:Message, clients:&Clients){
 
     //destructure the request, and process them based on the type of request
     match request {
-        Request::KeyNote(KeyNoteRequest{note,pressed_key,username}) =>{
-            println!("keynote {} key {} user {}",note,pressed_key,username);
+        Request::KeyNote(KeyNoteRequest{note,instrument,username,channel,toggle}) =>{
+            //println!("keynote {} instrument {} user {} channel {} toggle {}",note, instrument,username, channel,toggle);
+
+            clients
+                .read().await
+                .iter()
+                //Clients that aren't the sender
+                .filter(|(_, client)| match username.clone() {
+                    v => client.username != v,
+                })
+                //clients subscribed to the topic
+                .filter(|(_, client)| client.topics.contains(&channel))
+                .for_each(|(_, client)| {
+                    //We're using the variables (note,instrument..) outside this closure. We need to clone it
+                    let forwarded_keynote = Request::KeyNote(KeyNoteRequest{
+                        note:note.clone(),instrument:instrument.clone(),username:username.clone(),channel:channel.clone(),toggle:toggle.clone()
+                    });
+
+                    let json = serde_json::to_string(&forwarded_keynote).unwrap();
+                    //Send message from sender to clients.
+                    if let Some(sender) = &client.sender {
+                        let _ = sender.send(Ok(Message::text(json)));
+                    }
+                });
         },
         Request::Topics(TopicsRequest{topics}) =>{
-            println!("topics {:?}",topics);
+            //println!("topics {:?}",topics);
             let mut locked = clients.write().await;
             if let Some(v) = locked.get_mut(client_id){
                 v.topics = topics;

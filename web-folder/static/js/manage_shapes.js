@@ -39,6 +39,9 @@ var inline_color = blue;
 
 //Handles the user loops in this server
 var userloops = {};
+socket.onmessage = function(event){
+    console.log(event.data);
+}
 /*
 // Spawn a loop when the user presses a key.
 socket.on('press key', function(msg){
@@ -319,7 +322,14 @@ function mousePressed(){
             
             curr_note = key.note;
             pressed_key = key;
-            //socket.emit('press key', {'note': pressed_key.note,'type': pressed_key.type,'toggle':true,'channel':room_name, 'user_name':user_name});
+            let payload = {
+                note: pressed_key.note,
+                instrument: pressed_key.type,
+                toggle: true,
+                channel: room_name,
+                username: user_name
+            }
+            socket.send(JSON.stringify(payload));
         }
     }
     return false;
@@ -336,7 +346,16 @@ function mouseDragged(){
                 //socket.emit('release key', {'channel':room_name, 'user_name':user_name});
                 pressed_key = key;
                 pressed_key.playDragged();
-                //socket.emit('press key', {'note': pressed_key.note,'type': pressed_key.type,'toggle':true,'channel':room_name, 'user_name':user_name});
+                
+                let payload = {
+                    note: pressed_key.note,
+                    instrument: pressed_key.type,
+                    toggle: true,
+                    channel: room_name,
+                    username: user_name
+                }
+                socket.send(JSON.stringify(payload));
+
                 curr_note = pressed_key.note;
             }
             pressed_key.dragged();
