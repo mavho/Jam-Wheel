@@ -14,7 +14,7 @@ document.querySelector("#room_join").addEventListener("click", async() =>{
         //socket.emit('join room', {'room': room_name, 'user_name': user_name});
 
         let xhr = new XMLHttpRequest();
-        let url = `http://${document.domain}:${location.port}/register`
+        let url = `https://${document.domain}:${location.port}/register`
 
         xhr.open('POST',url);
 
@@ -28,14 +28,14 @@ document.querySelector("#room_join").addEventListener("click", async() =>{
         xhr.onload = () => {
             let payload = JSON.parse(xhr.response);
 
-            socket = new WebSocket(`ws://${document.domain}:${location.port}/ws/${payload['url']}`);
+            socket = new WebSocket(`wss://${document.domain}:${location.port}/ws/${payload['url']}`);
 
             socket.onopen = function(e){
                 console.log("Connection established");
 
                 socket.send(JSON.stringify({'topics':room_name}));
 
-                $.ajax(`http://${document.domain}:${location.port}/templates/_includes/jamwheel.html`).done(function(reply){
+                $.ajax(`https://${document.domain}:${location.port}/templates/_includes/jamwheel.html`).done(function(reply){
                     $('#title').removeClass("glow").addClass("muted-glow");
                     $('#container').html(reply);
                 });
