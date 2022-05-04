@@ -8,7 +8,7 @@ Updated to write the back-end in rust. Currently uses [Rust Warp](https://docs.r
 
 ## Development
 This application is still under development, there's still a lot of work to do!
-#Incoming Features
+# Incoming Features
 - Randomized User names.
 - Better sound quality and buffering.
 - Better instruments.
