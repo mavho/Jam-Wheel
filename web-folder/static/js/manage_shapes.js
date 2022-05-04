@@ -45,7 +45,6 @@ socket.onmessage = function(event){
     console.log(msg);
     switch(msg['event']){
         case "key":
-            console.log("key msg");
             if(msg['username'] in userloops && userloops[msg['username']].type == msg['instrument']){
                 userloops[msg['username']].updateNote(msg['note']);
             }else{
@@ -57,49 +56,17 @@ socket.onmessage = function(event){
             drawIncomingNotes(150,40);
             break;
         case "release": 
-            console.log("release");
             if(userloops[msg['username']] !== undefined){
                 userloops[msg['username']].endLoop();
             }
             break;
+        case "disconnect":
+            if (msg['username'] in userloops){
+                delete userloops[msg['username']];
+            }
+            break;
     }
 }
-/*
-// Spawn a loop when the user presses a key.
-function updateUserIcons(){
-    let top_div = createDiv();
-    top_div.addClass('column is-centered');
-    top_div.position(can_width - 110,can_height/2);
-    top_div.parent('sketch')
-
-    let box = createDiv();
-    box.addClass("box");
-    box.parent(top_div)
-
-    let ancestor_tile = createDiv();
-    ancestor_tile.addClass("tile is-vertical is-ancestor");
-    ancestor_tile.parent(box)
-
-    for(let user of users){
-        let parent_tile = createDiv();
-        parent_tile.addClass("tile is parent")
-        parent_tile.parent(ancestor_tile)
-
-        let child_tile = createDiv();
-        child_tile.addClass("tile is-child has-text-centered")
-        
-        child_tile.parent(parent_tile);
-
-        let span = createSpan();
-        span.addClass("icon is-large");
-        span.parent(child_tile);
-
-        let icon = createElement('i');
-        icon.addClass("fas fa-3x fa-laugh")
-        icon.parent(span);
-    }
-}
-*/
 // Background base
 var membrane_synth = new Tone.MembraneSynth(
     {

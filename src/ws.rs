@@ -9,7 +9,7 @@ use warp::ws::{WebSocket,Message};
 
 #[derive(Deserialize,Serialize,Clone,Debug)]
 pub struct TopicsRequest{
-    topics: Vec<String>
+    topics: String
 }
 #[derive(Deserialize,Serialize,Clone,Debug)]
 pub struct ReleaseRequest{
@@ -72,7 +72,40 @@ pub async fn client_connection(ws: WebSocket,id: String,clients: Clients, mut cl
         };
         client_msg(&id,msg,&clients).await;
     }
-    //client disconnect handler
+    /*
+    //When you reach here there has been a disconnect from the sender client.
+    */
+    match clients.read().await.get(&id) {
+        //If the client with the specified id exists
+        Some(v) =>{
+            //iterate through all clients. Send disconnect to all users subscribed to the topic who aren't the user.
+            clients
+                .read().await
+                .iter()
+                //Clients that aren't the sender
+                .filter(|(_,client)| match client.username.clone() {
+                    username => {
+                        !username.eq(&v.username)
+                    },
+                })
+                //clients subscribed to the topic
+                .filter(|(_, client)| client.topics.eq(&v.topics))
+                .for_each(|(_, client)| {
+                    let disconnect = Request::Release(ReleaseRequest{
+                        event: String::from("disconnect"),
+                        username: v.username.clone(),
+                        channel: v.topics.clone()
+                    });
+
+                    let json = serde_json::to_string(&disconnect).unwrap();
+                    //Send message from sender to clients.
+                    if let Some(sender) = &client.sender {
+                        let _ = sender.send(Ok(Message::text(json)));
+                    }
+                });
+        },
+        None => {},
+    }
     clients.write().await.remove(&id);
     println!("{} disconnected",id);
 }
@@ -108,7 +141,7 @@ async fn client_msg(client_id: &str, msg:Message, clients:&Clients){
                     v => client.username != v,
                 })
                 //clients subscribed to the topic
-                .filter(|(_, client)| client.topics.contains(&channel))
+                .filter(|(_, client)| client.topics.eq(&channel))
                 .for_each(|(_, client)| {
                     //We're using the variables (note,instrument..) outside this closure. We need to clone it
                     let forwarded_keynote = Request::KeyNote(KeyNoteRequest{
@@ -128,10 +161,11 @@ async fn client_msg(client_id: &str, msg:Message, clients:&Clients){
                 .iter()
                 //Clients that aren't the sender
                 .filter(|(_, client)| match username.clone() {
+                    //v in this case is the username
                     v => client.username != v,
                 })
                 //clients subscribed to the topic
-                .filter(|(_, client)| client.topics.contains(&channel))
+                .filter(|(_, client)| client.topics.eq(&channel))
                 .for_each(|(_, client)| {
                     //We're using the variables (note,instrument..) outside this closure. We need to clone it
                     let forwarded_release = Request::Release(ReleaseRequest{

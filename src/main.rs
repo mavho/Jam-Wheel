@@ -12,7 +12,7 @@ const WEB_FOLDER: &str = "web-folder/";
 pub struct Client{
     //rand uuid
     pub username: String,
-    pub topics :Vec<String>,
+    pub topics :String,
     //Allows us to send messages to UnboundedReceiver (client)
     pub sender: Option<mpsc::UnboundedSender<std::result::Result<Message, warp::Error>>>,
 }

@@ -47,7 +47,7 @@ pub async fn publish_handler(body: Event, clients: Clients) -> Result<impl Reply
             None => true,
         })
         //clients subscribed to the topic
-        .filter(|(_, client)| client.topics.contains(&body.topic))
+        .filter(|(_, client)| client.topics.eq(&body.topic))
         .for_each(|(_, client)| {
             //Send message from sender to clients.
             if let Some(sender) = &client.sender {
@@ -77,7 +77,7 @@ async fn register_client(id: String, username: String, clients: Clients){
         id,
         Client {
             username,
-            topics: vec![String::from("cats")],
+            topics: String::from("cats"),
             sender: None
         },
     );
