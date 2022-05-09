@@ -30,7 +30,7 @@ async fn main(){
 
     let port: u16 = match std::env::var("PORT"){
         Ok(v) => v.parse::<u16>().unwrap(),
-        Err(e)=> 8000
+        Err(_e)=> 8000
     };
     //Creates a threadsafe hashmap of clients
     let clients: Clients = Arc::new(RwLock::new(HashMap::new()));
