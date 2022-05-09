@@ -7,8 +7,6 @@ mod ws;
 
 const WEB_FOLDER: &str = "web-folder/";
 
-const CA_FILE : &str = env!("CARGO_HTTP_CAINFO");
-const KEY_FILE: &str = env!("KEY_FILE");
 //client struct
 #[derive(Debug,Clone)]
 pub struct Client{
@@ -89,9 +87,6 @@ async fn main(){
     println!("Starting Server");
 
     warp::serve(routes)
-        .tls()
-        .cert_path(CA_FILE)
-        .key_path(KEY_FILE)
         .run(([0,0,0,0],8000)).await;
 }
 //Extracts the clients data. Return a filter matching any route and composes the filter with a function
