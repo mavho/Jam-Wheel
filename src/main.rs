@@ -28,6 +28,10 @@ type Result<T> = std::result:: Result<T,Rejection>;
 //on the eventloop
 async fn main(){
 
+    let port: u16 = match std::env::var("PORT"){
+        Ok(v) => v.parse::<u16>().unwrap(),
+        Err(_e)=> 8000
+    };
     //Creates a threadsafe hashmap of clients
     let clients: Clients = Arc::new(RwLock::new(HashMap::new()));
 
@@ -86,8 +90,7 @@ async fn main(){
 
     println!("Starting Server");
 
-    warp::serve(routes)
-        .run(([0,0,0,0],8000)).await;
+    warp::serve(routes).run(([0,0,0,0],port)).await;
 }
 //Extracts the clients data. Return a filter matching any route and composes the filter with a function
 fn with_clients(clients: Clients) -> impl Filter<Extract = (Clients,),Error = Infallible> + Clone {
