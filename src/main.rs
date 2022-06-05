@@ -27,6 +27,11 @@ type Result<T> = std::result:: Result<T,Rejection>;
 #[tokio::main]
 //on the eventloop
 async fn main(){
+    //Sets dev configuration or prod. Dev is either true or false
+    let dev: bool = match std::env::var("DEV"){
+        Ok(v) => v.parse::<bool>().unwrap(),
+        Err(_e)=> false 
+    };
 
     let port: u16 = match std::env::var("PORT"){
         Ok(v) => v.parse::<u16>().unwrap(),
@@ -90,7 +95,20 @@ async fn main(){
 
     println!("Starting Server");
 
-    warp::serve(routes).run(([0,0,0,0],port)).await;
+    if dev{
+        println!("Dev configuration detected");
+        //use our dev config
+        warp::serve(routes)
+            .tls()
+            .cert_path("cert.pem")
+            .key_path("key.rsa")
+            .run(([0,0,0,0],port)).await;
+    }else{
+        println!("Heroku configuration detected");
+        //Heroku wraps https for our application
+        warp::serve(routes)
+            .run(([0,0,0,0],port)).await;
+    }
 }
 //Extracts the clients data. Return a filter matching any route and composes the filter with a function
 fn with_clients(clients: Clients) -> impl Filter<Extract = (Clients,),Error = Infallible> + Clone {
