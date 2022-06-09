@@ -8,8 +8,8 @@ use tokio_stream::wrappers::UnboundedReceiverStream;
 use warp::ws::{WebSocket,Message};
 
 #[derive(Deserialize,Serialize,Clone,Debug)]
-pub struct TopicsRequest{
-    topics: String
+pub struct RoomsRequest{
+    room: String
 }
 #[derive(Deserialize,Serialize,Clone,Debug)]
 pub struct ReleaseRequest{
@@ -33,7 +33,7 @@ pub struct KeyNoteRequest{
 //Serde will try to match the data against each variant with deserialize
 enum Request {
     KeyNote(KeyNoteRequest),
-    Topics(TopicsRequest),
+    Room(RoomsRequest),
     Release(ReleaseRequest)
 }
 pub async fn client_connection(ws: WebSocket,id: String,clients: Clients, mut client: Client){
@@ -89,12 +89,12 @@ pub async fn client_connection(ws: WebSocket,id: String,clients: Clients, mut cl
                     },
                 })
                 //clients subscribed to the topic
-                .filter(|(_, client)| client.topics.eq(&v.topics))
+                .filter(|(_, client)| client.room.eq(&v.room))
                 .for_each(|(_, client)| {
                     let disconnect = Request::Release(ReleaseRequest{
                         event: String::from("disconnect"),
                         username: v.username.clone(),
-                        channel: v.topics.clone()
+                        channel: v.room.clone()
                     });
 
                     let json = serde_json::to_string(&disconnect).unwrap();
@@ -110,7 +110,7 @@ pub async fn client_connection(ws: WebSocket,id: String,clients: Clients, mut cl
     println!("{} disconnected",id);
 }
 
-//Given a message and client id, send a pong message back to the client. Or do nothing.
+/// Handles different types of client messages, and routes them to the correct room.
 async fn client_msg(client_id: &str, msg:Message, clients:&Clients){
     println!("Received message from {}: {:?}",client_id,msg);
 
@@ -141,7 +141,7 @@ async fn client_msg(client_id: &str, msg:Message, clients:&Clients){
                     v => client.username != v,
                 })
                 //clients subscribed to the topic
-                .filter(|(_, client)| client.topics.eq(&channel))
+                .filter(|(_, client)| client.room.eq(&channel))
                 .for_each(|(_, client)| {
                     //We're using the variables (note,instrument..) outside this closure. We need to clone it
                     let forwarded_keynote = Request::KeyNote(KeyNoteRequest{
@@ -165,7 +165,7 @@ async fn client_msg(client_id: &str, msg:Message, clients:&Clients){
                     v => client.username != v,
                 })
                 //clients subscribed to the topic
-                .filter(|(_, client)| client.topics.eq(&channel))
+                .filter(|(_, client)| client.room.eq(&channel))
                 .for_each(|(_, client)| {
                     //We're using the variables (note,instrument..) outside this closure. We need to clone it
                     let forwarded_release = Request::Release(ReleaseRequest{
@@ -179,11 +179,11 @@ async fn client_msg(client_id: &str, msg:Message, clients:&Clients){
                     }
                 });
         },
-        Request::Topics(TopicsRequest{topics}) =>{
+        Request::Room(RoomsRequest{room}) =>{
             //println!("topics {:?}",topics);
             let mut locked = clients.write().await;
             if let Some(v) = locked.get_mut(client_id){
-                v.topics = topics;
+                v.room = room;
             }
         }
     }

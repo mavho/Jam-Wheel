@@ -25,7 +25,6 @@ document.querySelector("#room_join").addEventListener("click", async() =>{
 
     let json = JSON.stringify({
         username: user_name,
-        //room: room_name
     });
     xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
     xhr.send(json);
@@ -38,7 +37,7 @@ document.querySelector("#room_join").addEventListener("click", async() =>{
         socket.onopen = function(e){
             console.log("Connection established");
 
-            socket.send(JSON.stringify({'topics':room_name}));
+            socket.send(JSON.stringify({'room':room_name}));
 
             $.ajax(`https://${document.domain}:${location.port}/templates/_includes/jamwheel.html`).done(function(reply){
                 $('#title').removeClass("glow").addClass("muted-glow");
