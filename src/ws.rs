@@ -82,14 +82,10 @@ pub async fn client_connection(ws: WebSocket,id: String,clients: Clients, mut cl
             clients
                 .read().await
                 .iter()
-                //Clients that aren't the sender
-                .filter(|(_,client)| match client.username.clone() {
-                    username => {
-                        !username.eq(&v.username)
-                    },
-                })
                 //clients subscribed to the topic
                 .filter(|(_, client)| client.room.eq(&v.room))
+                //Clients that aren't the sender
+                .filter(|(_, client)| client.username.ne(&v.username))
                 .for_each(|(_, client)| {
                     let disconnect = Request::Release(ReleaseRequest{
                         event: String::from("disconnect"),
@@ -136,12 +132,10 @@ async fn client_msg(client_id: &str, msg:Message, clients:&Clients){
             clients
                 .read().await
                 .iter()
-                //Clients that aren't the sender
-                .filter(|(_, client)| match username.clone() {
-                    v => client.username != v,
-                })
                 //clients subscribed to the topic
                 .filter(|(_, client)| client.room.eq(&channel))
+                //Clients that aren't the sender
+                .filter(|(_, client)| client.username.ne(&username))
                 .for_each(|(_, client)| {
                     //We're using the variables (note,instrument..) outside this closure. We need to clone it
                     let forwarded_keynote = Request::KeyNote(KeyNoteRequest{
@@ -159,13 +153,10 @@ async fn client_msg(client_id: &str, msg:Message, clients:&Clients){
             clients
                 .read().await
                 .iter()
-                //Clients that aren't the sender
-                .filter(|(_, client)| match username.clone() {
-                    //v in this case is the username
-                    v => client.username != v,
-                })
                 //clients subscribed to the topic
                 .filter(|(_, client)| client.room.eq(&channel))
+                //Clients that aren't the sender
+                .filter(|(_, client)| client.username.ne(&username))
                 .for_each(|(_, client)| {
                     //We're using the variables (note,instrument..) outside this closure. We need to clone it
                     let forwarded_release = Request::Release(ReleaseRequest{

@@ -1,7 +1,7 @@
 use crate::{ws, Client, Clients, Result};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use warp::{http::StatusCode, reply::json, ws::Message, Reply};
+use warp::{http::StatusCode, reply::json, Reply};
 
 
 //For Rest API (registering users)
@@ -13,13 +13,6 @@ pub struct RegisterRequest {
 #[derive(Serialize,Debug)]
 pub struct RegisterResponse {
     url: String,
-}
-//For broadcasting events
-#[derive(Deserialize,Debug)]
-pub struct Event{
-    topic: String,
-    username: Option<String>,
-    message:String
 }
 
 //Reply: a type that can be converted into a HTTP response
@@ -35,29 +28,6 @@ pub async fn ws_handler(ws: warp::ws::Ws,id:String, clients: Clients) -> Result<
         None => Err(warp::reject::not_found())
     }
 }
-
-//broadcast message to clients
-pub async fn publish_handler(body: Event, clients: Clients) -> Result<impl Reply> {
-    clients
-        .read().await
-        .iter()
-        //Clients that aren't the sender
-        .filter(|(_, client)| match body.username.clone() {
-            Some(v) => client.username == v,
-            None => true,
-        })
-        //clients subscribed to the topic
-        .filter(|(_, client)| client.room.eq(&body.topic))
-        .for_each(|(_, client)| {
-            //Send message from sender to clients.
-            if let Some(sender) = &client.sender {
-                let _ = sender.send(Ok(Message::text(body.message.clone())));
-            }
-        });
-
-    Ok(StatusCode::OK)
-}
-
 
 //Handles registering a user. A user id is sent in body
 pub async fn register_handler(body: RegisterRequest, clients: Clients) -> Result<impl Reply> {
@@ -77,7 +47,7 @@ async fn register_client(id: String, username: String, clients: Clients){
         id,
         Client {
             username,
-            room: String::from("cats"),
+            room: String::from("temp"),
             sender: None
         },
     );

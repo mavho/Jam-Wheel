@@ -73,11 +73,6 @@ async fn main(){
             .and(with_clients(clients.clone()))
             .and_then(handlers::unregister_handler));
 
-     let publish = warp::path!("publish")
-        .and(warp::body::json())
-        .and(with_clients(clients.clone()))
-        .and_then(handlers::publish_handler);
-
     //Websocket route
     println!("Configuring websocket route");
     let ws_route = warp::path("ws")
@@ -90,7 +85,6 @@ async fn main(){
         .or(health_route)
         .or(register_route)
         .or(ws_route)
-        .or(publish)
         .with(warp::cors().allow_any_origin());
 
     println!("Starting Server");
