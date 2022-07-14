@@ -8,6 +8,7 @@ use warp::{http::StatusCode, reply::json, Reply};
 #[derive(Deserialize,Debug)]
 pub struct RegisterRequest {
     username: String,
+    room: String,
 }
 
 #[derive(Serialize,Debug)]
@@ -31,26 +32,54 @@ pub async fn ws_handler(ws: warp::ws::Ws,id:String, clients: Clients) -> Result<
 
 //Handles registering a user. A user id is sent in body
 pub async fn register_handler(body: RegisterRequest, clients: Clients) -> Result<impl Reply> {
+    println!("register handler");
     let username = body.username;
+    let room = body.room;
     let uuid = Uuid::new_v4().simple().to_string();
 
-    register_client(uuid.clone(),username,clients).await;
-    Ok(json(&RegisterResponse {
-        url: format!("{}", uuid),
-    }))
+    let result = register_client(uuid.clone(),username,room,clients).await;
+
+    match result {
+        Some(_) =>
+        {
+            println!("found");
+            return Ok(json(&RegisterResponse {
+                url: format!("{}", uuid),
+            }))
+        } ,
+        None => {
+            println!("not found");
+            return Err(warp::reject::not_found())
+        }
+    }
 }
 
 //Creates new client, and adds them to client list.
-async fn register_client(id: String, username: String, clients: Clients){
-    //write is a Read write lock
-    clients.write().await.insert(
-        id,
-        Client {
-            username,
-            room: String::from("temp"),
+async fn register_client(id: String, username: String,room:String, clients: Clients) -> Option<Client>{
+
+    let registering_client = Client {
+            username:username,
+            room:room,
             sender: None
-        },
+        };
+
+    //see if any clients conflict with the registering user.
+    if clients
+        .read().await
+        .iter()
+        //clients subscribed to the topic and have the same username.
+        .filter(|(_, client)| client.room.eq(&registering_client.room) && client.username.eq(&registering_client.username))
+        //check if any clients matche dthe filter.
+        .next()
+        .is_some(){
+            return None
+        }
+    clients.write().await.insert(
+        id,registering_client.clone()
     );
+
+    Some(registering_client)
+
 }
 
 //client will be disconnected.

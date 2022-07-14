@@ -8,10 +8,6 @@ use tokio_stream::wrappers::UnboundedReceiverStream;
 use warp::ws::{WebSocket,Message};
 
 #[derive(Deserialize,Serialize,Clone,Debug)]
-pub struct RoomsRequest{
-    room: String
-}
-#[derive(Deserialize,Serialize,Clone,Debug)]
 pub struct ReleaseRequest{
     event: String,
     username: String,
@@ -33,7 +29,6 @@ pub struct KeyNoteRequest{
 //Serde will try to match the data against each variant with deserialize
 enum Request {
     KeyNote(KeyNoteRequest),
-    Room(RoomsRequest),
     Release(ReleaseRequest)
 }
 pub async fn client_connection(ws: WebSocket,id: String,clients: Clients, mut client: Client){
@@ -170,12 +165,5 @@ async fn client_msg(client_id: &str, msg:Message, clients:&Clients){
                     }
                 });
         },
-        Request::Room(RoomsRequest{room}) =>{
-            //println!("topics {:?}",topics);
-            let mut locked = clients.write().await;
-            if let Some(v) = locked.get_mut(client_id){
-                v.room = room;
-            }
-        }
     }
 }
