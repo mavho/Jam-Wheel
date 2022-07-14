@@ -30,6 +30,8 @@ pub async fn ws_handler(ws: warp::ws::Ws,id:String, clients: Clients) -> Result<
     }
 }
 
+const ROOM_MAX:i32 = 2;
+
 //Handles registering a user. A user id is sent in body
 pub async fn register_handler(body: RegisterRequest, clients: Clients) -> Result<impl Reply> {
     println!("register handler");
@@ -62,6 +64,16 @@ async fn register_client(id: String, username: String,room:String, clients: Clie
             room:room,
             sender: None
         };
+    //check if room is full. probably have to use a different way implement, for now this works.
+    if clients
+        .read().await
+        .iter()
+        //clients subscribed to the topic and have the same username.
+        .filter(|(_, client)| client.room.eq(&registering_client.room))
+        //Current room max will be 2
+        .count() as i32 == ROOM_MAX{
+            return None
+        }
 
     //see if any clients conflict with the registering user.
     if clients
@@ -74,6 +86,7 @@ async fn register_client(id: String, username: String,room:String, clients: Clie
         .is_some(){
             return None
         }
+
     clients.write().await.insert(
         id,registering_client.clone()
     );
