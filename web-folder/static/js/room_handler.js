@@ -1,3 +1,5 @@
+import JamWheel from "./JamWheel.js";
+
 var socket;
 var room_name = "";
 var user_name = "";
@@ -31,42 +33,41 @@ document.querySelector("#room_join").addEventListener("click", async() =>{
     xhr.send(json);
 
     xhr.onload = () => {
+
+        $("#landing_page").hide();
         let payload = JSON.parse(xhr.response);
 
-        socket = new WebSocket(`wss://${document.domain}:${location.port}/ws/${payload['url']}`);
 
-        socket.onopen = function(e){
-            console.log("Connection established");
+        const jamwheel = new JamWheel({
+            wsUri:`wss://${document.domain}:${location.port}/ws/${payload['url']}`,
+            userid: payload['url'],
+            username: user_name,
+            room: room_name 
+        });
+        $("#sketch").show();
 
-            $.ajax(`https://${document.domain}:${location.port}/templates/_includes/jamwheel.html`).done(function(reply){
-                $('#title').removeClass("glow").addClass("muted-glow");
-                $('#container').html(reply);
-            });
-        }
+        jamwheel.run();
 
-        socket.onclose = function(e){
-            if (e.wasClean){
-                console.log(`Connection closed cleanly, code=${e.code}, reason = ${e.reason}`);
-            }else{
-                console.log('Connection died');
-            }
-        }
-
-        socket.onerror = function(error){
-            console.log(`error ${error.message}`);
-        }
     }
 });
 
-function textCounter(field, count_field_id, limit){
-    var count_field = $(count_field_id);
-    if (field.value.length > limit){
+
+$("#room_input").on('keydown keyup',{limit:8,counter:"#room_counter"},textCounter);
+$("#username_input").on('keydown keyup',{limit:16,counter:"#user_counter"},textCounter);
+
+function textCounter(event){
+    var e = $(this);
+    let limit = event.data.limit;
+
+    var counter_field = $(event.data.counter);
+
+    if (e.val().length > limit){
         //retains max limit
-        field.value = field.value.substring(0,limit);
-        $(field).addClass('is-danger');
+        e.val(e.val().substring(0,limit));
+        e.addClass('is-danger');
     }else{
-        $(field).removeClass('is-danger');
-        count_field.text(limit-field.value.length);
+        e.removeClass('is-danger');
+        counter_field.text(limit-e.val().length);
     }
 }
 function checkInput(input,max_len){

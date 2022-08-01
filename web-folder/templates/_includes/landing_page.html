@@ -21,7 +21,7 @@
 
     <body>
         <section id="container" class="is-widescreen is-fullwidth has-background-black">
-            <div class="columns is-centered">
+            <div id="landing_page" class="columns is-centered">
                 <div class="column is-half stretchVert">
                     <div id="window" class="tile box is-ancestor is-vertical">
                         <div class="tile is-parent">
@@ -30,14 +30,12 @@
                         </div>
                         <div class="tile is-parent">
                             <div class="tile is-child is-vertical">
-                                <input id="room_input" class="input level-item  has-text-grey-lighter" type="text" placeholder="Enter Room Name..."
-                                onkeydown="textCounter(this,'#room_counter',8);" onkeyup="textCounter(this,'#room_counter',8);">
+                                <input id="room_input" class="input level-item  has-text-grey-lighter" type="text" placeholder="Enter Room Name...">
                                 </input>
                                 <div class="has-text-grey-lighter"id="room_counter">8</div>
                             </div>
                             <div class="tile is-child is-vertical">
-                                <input id="username_input" class="input level-item has-text-grey-lighter" type="text" placeholder="Enter UserName..."
-                                onkeydown="textCounter(this,'#user_counter',16);" onkeyup="textCounter(this,'#user_counter',16);">
+                                <input id="username_input" class="input level-item has-text-grey-lighter" type="text" placeholder="Enter UserName...">
                                 </input>
                                 <div class="has-text-grey-lighter has-text-right"id="user_counter">16</div>
                             </div>
@@ -62,9 +60,16 @@
                     </div>
                 </div>
             </div>
+            <div id="sketch" class="tile is-bordered"></div>
+            
         </section>
     </body>
 
-    <script src="static/js/room_handler.js"></script>
+    <script src="static/js/room_handler.js" type="module"></script>
+    <script src="static/js/node_modules/tone/build/Tone.js"></script>
+    <script src="static/js/JamWheel.js" type="module"></script>
+    <script src="static/js/p5/p5.js"></script>
+    <script src="static/js/notes.js"></script>
+    <!--<script src="static/js/manage_shapes.js"></script>-->
 
 </html>

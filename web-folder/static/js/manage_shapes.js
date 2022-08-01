@@ -100,7 +100,7 @@ function setup(){
 
     canvas.style('display','block');
 
-    frameRate(45);
+    frameRate(30);
     document.querySelector('#FAT').addEventListener('click', async() =>{
         updateKeys(FatOscillator.type);
     });

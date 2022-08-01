@@ -44,13 +44,11 @@ pub async fn register_handler(body: RegisterRequest, clients: Clients) -> Result
     match result {
         Some(_) =>
         {
-            println!("found");
             return Ok(json(&RegisterResponse {
                 url: format!("{}", uuid),
             }))
         } ,
         None => {
-            println!("not found");
             return Err(warp::reject::not_found())
         }
     }
@@ -86,6 +84,7 @@ async fn register_client(id: String, username: String,room:String, clients: Clie
         .is_some(){
             return None
         }
+
 
     clients.write().await.insert(
         id,registering_client.clone()
