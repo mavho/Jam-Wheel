@@ -43,17 +43,19 @@ async fn main(){
     let html_content = warp::fs::dir(WEB_FOLDER);
 
     let index = warp::get().and(warp::path::end())
-        .and(warp::fs::file(format!("{}/templates/_includes/landing_page.html",WEB_FOLDER)));
+        .and(warp::fs::file(format!("{}/templates/_layouts/index.html",WEB_FOLDER)));
 
+    /*
     let templates = warp::get().and(warp::path!("templates"))
         .and(warp::fs::dir(format!("{}/templates/_includes/",WEB_FOLDER)));
+    */
 
     let js =  warp::get().and(warp::path!("static"))
         .and(warp::fs::dir(format!("{}/static/js/",WEB_FOLDER)));
 
     
 
-    let static_site = index.or(templates).or(js).or(html_content);
+    let static_site = index.or(js).or(html_content);
 
     // GET Health Check route
     let health_route = warp::path!("health")
