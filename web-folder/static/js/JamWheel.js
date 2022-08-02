@@ -1,7 +1,7 @@
-
 export default class JamWheel {
     playNote = false; // Is a note being played?
     canvas = null; // The canvas this code creates
+    canvas_color = "black";
     ctx = null; // Canvas context
     wsUri = null; // Web socket server URI sans port
     element = null; // Inst from options.element
@@ -20,14 +20,68 @@ export default class JamWheel {
     gain = 1; // volume
     pan = 0; // pan
     patches = []; // Loaded on instantiation
+    p5 = null;
+    curr_type = null;
+    circenterX = null;
+    circenterY = null;
+    
+    hex_color_wheel = ["#E50018","#E1008E","#BA00DD","#4400D9","#002CD5","#009AD2","#00CE98","#00CA2A","#3EC600","#A3C200"]
+
+    hex_color_blue = ["#0016E5","#0229DB","#053AD2","#0749C9","#0956BF","#0B61B6","#0C6AAD","#0E71A3","#0F779A","#107A91"]
+
+    hex_color_red = ["#E50022","#DB041F","#D1091C","#C70E1A","#BD1317","#A91D12","#9F220F","#95220F","#95270D","#823108"]
+
+    hex_color_peach = ["#DD5336","#DD503B","#DE4D41","#DE4A47","#DF474D","#DF4453","#E04159","#E03E5F","#E13B65","#E23671"]
+
+    hex_color_yellow = ["#E7D947","#DBD944","#CFDA42","#C3DB41","#B8DC3F","#ACDD3E","#A0DE3C","#95DF3A","#89E039","#7DE137"]
+
+    hex_color_green = ["#0B5403","#105C04","#166405","#1B6C06","#217407","#277C08","#2C8409","#328C0A","#37940B","#3D9C0C"]
+    C_MAJ_SCALE =["C4","D4","E4","F4","G4","A4","B4","C5","D5","E5"]
+
+    OCTAVE_LOWER=["C2","D2","E2","F2","G2","A2","B2","C3","D3","E3"]
+
+    blue = "#003680";
+    green = "#6CDA70";
+    red = "#710A0D";
+    peach ="#E08A8C";
+    yellow = "#D9B33A";
+
+
+    inline_color = this.blue;
+
+    // Background base
+    membrane_synth = new Tone.MembraneSynth(
+        {
+            "pitchDecay"  : 0.01 ,
+            "octaves"  : 5 ,
+            "oscillator"  : {
+                "type"  : "sine"
+        }  ,
+            "envelope"  : {
+                "attack"  : 0.001 ,
+                "decay"  : 0.1 ,
+                "sustain"  : 0.05 ,
+                "release"  : 0.01 ,
+                "attackCurve"  : "linear"
+            }
+        }
+    ).toMaster();
+
+
 
     options = {
         pulseMS: 1000 / 8, // Sending to server, and rendering sound and cursors
 
     };
 
-    constructor(options) {
+    constructor(p5,options,wsUri,id,name,room) {
+        this.p5 = p5;
         this.options = { ...this.options, ...options };
+        this.wsUri = wsUri;
+        this.userId = id;
+        this.username = name;
+        this.room = room;
+
     }
 
     /**
@@ -36,7 +90,7 @@ export default class JamWheel {
      * inits for need beats and functions for initial runs.
      */
     _init() {
-        this.connect();
+        this.connectWebSockets();
     }
 
 
@@ -45,12 +99,12 @@ export default class JamWheel {
             throw new Error('Unfortunately your browser is not supported');
         }
 
-        this.websocket = new WebSocket(`wss://${document.domain}:${location.port}/ws/${payload['url']}`);
+        this.websocket = new WebSocket(this.wsUri);
 
         this.websocket.onopen = this.wsOpen.bind(this);
         this.websocket.onclose= this.wsClose.bind(this);
         this.websocket.onmessage= this.wsReceive.bind(this);
-        this.websocket.onerror = this.wsSend.bind(this);
+        this.websocket.onerror = this.error.bind(this);
     }
 
     //Receives
@@ -62,19 +116,11 @@ export default class JamWheel {
     //establish ws connection
     wsOpen(){
         console.log("Connection established");
-
-        //hide the HTML
-        //show the jam wheel
-
-        /*$.ajax(`https://${document.domain}:${location.port}/templates/_includes/jamwheel.html`).done(function(reply){
-            $('#title').removeClass("glow").addClass("muted-glow");
-            $('#container').html(reply);
-        });
-        */
+        //remove glow
+        $('#title').removeClass("glow").addClass("muted-glow");
 
         this.initEvents();
         this.createSwitcher();
-
     }
 
     //clean up ws and page happens here
@@ -96,9 +142,13 @@ export default class JamWheel {
         throw e;
     }
 
+    destroy(){}
+
 
     initEvents(){
         window.requestAnimationFrame(this.draw.bind(this));
+
+        this.draw();
 
         // Periodically send the cursor position and redraw
         //this.pulseTimer = setInterval(this.pulse.bind(this), this.options.pulseMS);
@@ -108,21 +158,23 @@ export default class JamWheel {
     //draws initial GUI
     //then tries to init
     run(){
-        document,getElementById("landing_page").hide();
-        canvasDiv = document.getElementById("sketch");
+        //document,getElementById("landing_page").hide();
+        const border = document.getElementById("sketch");
         // Set up canvas
-        can_width = canvasDiv.offsetWidth;
-        can_height = windowHeight;
-        var canvas = createCanvas(can_width,can_height);
-        canvas.parent('sketch')
-        createSwitcher();
-        updateKeys(curr_type);
+        let can_width = border.offsetWidth;
+        let can_height = this.p5.windowHeight;
+        console.log(can_width,can_height);
+        this.canvas = this.p5.createCanvas(can_width,can_height);
+        this.canvas.parent('sketch')
+        //this.createSwitcher();
+        this.updateKeys(this.curr_type);
 
-        canvas.style('display','block');
+        this.canvas.style('display','block');
 
         //init game logic.
         this._init();
     }
+
 
 
     /**
@@ -130,22 +182,22 @@ export default class JamWheel {
      */
 
     draw(){
-        background(canvas_background);
-        r = 150;
-        noFill();
-        stroke(197,185,166);
-        strokeWeight(5);
-        envelope = membrane_synth.envelope.value;
+        this.p5.background(this.canvas_color);
+        var r = 150;
+        this.p5.noFill();
+        this.p5.stroke(197,185,166);
+        this.p5.strokeWeight(5);
+        let envelope = this.membrane_synth.envelope.value;
         for (var i = 0; i < 3; i++){
-            x2 = (r + envelope*200)*tan(2*PI/envelope);
-            y2 = (r + envelope*200)*tan(2*PI/envelope);
-            ellipse(cir_centerX,cir_centerY, x2, y2);
+            let x2 = (r + envelope*200)*this.p5.tan(2*this.p5.PI/envelope);
+            let y2 = (r + envelope*200)*this.p5.tan(2*this.p5.PI/envelope);
+            this.p5.ellipse(this.circenterX,this.circenterY, x2, y2);
         }
         //TODO: make this more efficient.
         //drawIncomingNotes(r,40);
 
-        stroke(inline_color);
-        strokeWeight(2);
+        this.p5.stroke(this.inline_color);
+        this.p5.strokeWeight(2);
         for(let i = 0; i < this.instruments.length; i++){
             this.instruments[i].show();
         }
@@ -155,16 +207,16 @@ export default class JamWheel {
     //creates DOM for selecting different Instruments
     createSwitcher(){
 
-        let top_div = createDiv();
+        let top_div = this.p5.createDiv();
         top_div.addClass('column is-centered');
-        top_div.position(0,can_height/2);
+        top_div.position(0,this.canvas.height/2);
         top_div.parent('sketch')
 
-        let box = createDiv();
+        let box = this.p5.createDiv();
         box.addClass("box");
         box.parent(top_div)
 
-        let ancestor_tile = createDiv();
+        let ancestor_tile = this.p5.createDiv();
         ancestor_tile.addClass("tile is-vertical is-ancestor");
         ancestor_tile.parent(box)
 
@@ -172,40 +224,40 @@ export default class JamWheel {
         let colors = ["red","peach","yellow","green","blue"]
 
         for(let i=0; i < 5; i++){
-            let parent_tile = createDiv();
+            let parent_tile = this.p5.createDiv();
             parent_tile.addClass("tile is parent")
             parent_tile.parent(ancestor_tile)
 
-            let child_tile = createA('','','_blank');
+            let child_tile = this.p5.createA('','','_blank');
             child_tile.removeAttribute('href')
             child_tile.addClass("tile is-child has-text-centered")
             child_tile.id(ids[i]);
             
             child_tile.parent(parent_tile);
 
-            let span = createSpan();
+            let span = this.p5.createSpan();
             span.addClass("icon is-large " + colors[i]);
             span.parent(child_tile);
 
-            let icon = createElement('i');
+            let icon = this.p5.createElement('i');
             icon.addClass("fas fa-3x fa-square")
             icon.parent(span);
         }
 
         document.querySelector('#FAT').addEventListener('click', async() =>{
-            updateKeys(FatOscillator.type);
+            this.updateKeys(FatOscillator.type);
         });
         document.querySelector('#SYNTH').addEventListener('click', async() =>{
-            updateKeys(SimpleSynth.type);
+            this.updateKeys(SimpleSynth.type);
         });
         document.querySelector('#KALIMBA').addEventListener('click', async() =>{
-            updateKeys(Kalimba.type);
+            this.updateKeys(Kalimba.type);
         });
         document.querySelector('#PIANOETTA').addEventListener('click', async() =>{
-            updateKeys(Pianoetta.type);
+            this.updateKeys(Pianoetta.type);
         });
         document.querySelector('#SYNTH1').addEventListener('click', async() =>{
-            updateKeys(Synth1.type);
+            this.updateKeys(Synth1.type);
         });
 
 
@@ -214,61 +266,61 @@ export default class JamWheel {
 
     // Used for drawing and setting up different keys
     updateKeys(type){
-        curr_type = type;
+        this.curr_type = type;
         let points = 10;
         let pointAngle = 360/points;
-        let radius = can_width/6;
-        cir_centerX= can_width/2;
-        cir_centerY = can_height/2;
+        let radius = this.canvas.width/6;
+        this.circenterX= this.canvas.width/2;
+        this.circenterY = this.canvas.height/2;
 
         this.instruments = [];
         let counter = 0 
         //draw the triangle circle
         for (let angle=270;angle<630;angle=angle+pointAngle){
-            x = cos(radians(angle)) * radius; //convert angle to radians for x and y coordinates
-            y = sin(radians(angle)) * radius;
+            var x = this.p5.cos(this.p5.radians(angle)) * radius; //convert angle to radians for x and y coordinates
+            var y = this.p5.sin(this.p5.radians(angle)) * radius;
 
             let temp = angle + pointAngle;
             switch(type){
                 case FatOscillator.type:
-                    var tri = new FatOscillator(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
-                        ((cos(radians(temp)) * radius) + cir_centerX),(sin(radians(temp)) * radius) + cir_centerY,
-                        hex_color_red[counter],OCTAVE_LOWER[counter]);
+                    var tri = new FatOscillator(this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
+                        ((this.p5.cos(this.p5.radians(temp)) * radius) + this.circenterX),(this.p5.sin(this.p5.radians(temp)) * radius) + this.circenterY,
+                        this.hex_color_red[counter],this.OCTAVE_LOWER[counter]);
                     this.instruments.push(tri);
-                    canvas_background = red;
-                    inline_color = blue;
+                    this.canvas_color = this.red;
+                    this.inline_color = this.blue;
                     break;
                 case SimpleSynth.type:
-                    var tri = new SimpleSynth(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
-                        ((cos(radians(temp)) * radius) + cir_centerX),(sin(radians(temp)) * radius) + cir_centerY,
-                        hex_color_yellow[counter],OCTAVE_LOWER[counter]);
+                    var tri = new SimpleSynth(this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
+                        ((this.p5.cos(this.p5.radians(temp)) * radius) + this.circenterX),(this.p5.sin(this.p5.radians(temp)) * radius) + this.circenterY,
+                        this.hex_color_yellow[counter],this.OCTAVE_LOWER[counter]);
                     this.instruments.push(tri);
-                    canvas_background = yellow;
-                    inline_color = peach;
+                    this.canvas_color = this.yellow;
+                    this.inline_color = this.peach;
                     break;
                 case Kalimba.type:
-                    var tri = new Kalimba(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
-                        ((cos(radians(temp)) * radius) + cir_centerX),(sin(radians(temp)) * radius) + cir_centerY,
-                        hex_color_green[counter],C_MAJ_SCALE[counter]);
+                    var tri = new Kalimba(this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
+                        ((this.p5.cos(this.p5.radians(temp)) * radius) + this.circenterX),(this.p5.sin(this.p5.radians(temp)) * radius) + this.circenterY,
+                        this.hex_color_green[counter],this.C_MAJ_SCALE[counter]);
                     this.instruments.push(tri);
-                    canvas_background = green;
-                    inline_color = blue;
+                    this.canvas_color = this.green;
+                    this.inline_color = this.blue;
                     break;
                 case Pianoetta.type:
-                    var tri = new Pianoetta(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
-                        ((cos(radians(temp)) * radius) + cir_centerX),(sin(radians(temp)) * radius) + cir_centerY,
-                        hex_color_peach[counter],OCTAVE_LOWER[counter]);
+                    var tri = new Pianoetta(this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
+                        ((this.p5.cos(this.p5.radians(temp)) * radius) + this.circenterX),(this.p5.sin(this.p5.radians(temp)) * radius) + this.circenterY,
+                        this.hex_color_peach[counter],this.OCTAVE_LOWER[counter]);
                     this.instruments.push(tri);
-                    canvas_background = peach;
-                    inline_color = red;
+                    this.canvas_color = this.peach;
+                    this.inline_color = this.red;
                     break;
                 case Synth1.type:
-                    var tri = new Synth1(cir_centerX,cir_centerY,x+cir_centerX,y+cir_centerY,
-                        ((cos(radians(temp)) * radius) + cir_centerX),(sin(radians(temp)) * radius) + cir_centerY,
-                        hex_color_blue[counter],C_MAJ_SCALE[counter]);
+                    var tri = new Synth1(this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
+                        ((this.p5.cos(this.p5.radians(temp)) * radius) + this.circenterX),(this.p5.sin(this.p5.radians(temp)) * radius) + this.circenterY,
+                        this.hex_color_blue[counter],this.C_MAJ_SCALE[counter]);
                     this.instruments.push(tri);
-                    canvas_background = blue;
-                    inline_color = green;
+                    this.canvas_color = this.blue;
+                    this.inline_color = this.green;
                     break;
             }
             counter++;

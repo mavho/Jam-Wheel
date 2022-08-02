@@ -1,11 +1,7 @@
 import JamWheel from "./JamWheel.js";
 
-var socket;
 var room_name = "";
 var user_name = "";
-var user_count = 0;
-
-var users = {}
 
 document.querySelector("#room_join").addEventListener("click", async() =>{
     room_name = document.getElementById("room_input").value;
@@ -37,16 +33,24 @@ document.querySelector("#room_join").addEventListener("click", async() =>{
         $("#landing_page").hide();
         let payload = JSON.parse(xhr.response);
 
+        
+        let e = new p5(function(tp5){
 
-        const jamwheel = new JamWheel({
-            wsUri:`wss://${document.domain}:${location.port}/ws/${payload['url']}`,
-            userid: payload['url'],
-            username: user_name,
-            room: room_name 
+            tp5.setup = function(){
+                let jamwheel = new JamWheel(
+                    tp5,
+                    {},
+                    `wss://${document.domain}:${location.port}/ws/${payload['url']}`,
+                    payload['url'],
+                    user_name,
+                    room_name,
+                    )
+
+                jamwheel.run();
+            }
+
         });
-        $("#sketch").show();
 
-        jamwheel.run();
 
     }
 });
