@@ -21,7 +21,7 @@ export default class JamWheel {
     pan = 0; // pan
     patches = []; // Loaded on instantiation
     p5 = null;
-    curr_type = null;
+    curr_type = "KALIMBA";
     circenterX = null;
     circenterY = null;
     
@@ -148,16 +148,16 @@ export default class JamWheel {
     initEvents(){
         window.requestAnimationFrame(this.draw.bind(this));
 
-        this.draw();
-
         // Periodically send the cursor position and redraw
-        //this.pulseTimer = setInterval(this.pulse.bind(this), this.options.pulseMS);
+        this.pulseTimer = setInterval(this.draw.bind(this), this.options.pulseMS);
 
     }
 
     //draws initial GUI
     //then tries to init
     run(){
+
+        this.p5.noLoop();
         //document,getElementById("landing_page").hide();
         const border = document.getElementById("sketch");
         // Set up canvas
@@ -283,7 +283,7 @@ export default class JamWheel {
             let temp = angle + pointAngle;
             switch(type){
                 case FatOscillator.type:
-                    var tri = new FatOscillator(this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
+                    var tri = new FatOscillator(this.p5,this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
                         ((this.p5.cos(this.p5.radians(temp)) * radius) + this.circenterX),(this.p5.sin(this.p5.radians(temp)) * radius) + this.circenterY,
                         this.hex_color_red[counter],this.OCTAVE_LOWER[counter]);
                     this.instruments.push(tri);
@@ -291,7 +291,7 @@ export default class JamWheel {
                     this.inline_color = this.blue;
                     break;
                 case SimpleSynth.type:
-                    var tri = new SimpleSynth(this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
+                    var tri = new SimpleSynth(this.p5,this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
                         ((this.p5.cos(this.p5.radians(temp)) * radius) + this.circenterX),(this.p5.sin(this.p5.radians(temp)) * radius) + this.circenterY,
                         this.hex_color_yellow[counter],this.OCTAVE_LOWER[counter]);
                     this.instruments.push(tri);
@@ -299,7 +299,7 @@ export default class JamWheel {
                     this.inline_color = this.peach;
                     break;
                 case Kalimba.type:
-                    var tri = new Kalimba(this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
+                    var tri = new Kalimba(this.p5,this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
                         ((this.p5.cos(this.p5.radians(temp)) * radius) + this.circenterX),(this.p5.sin(this.p5.radians(temp)) * radius) + this.circenterY,
                         this.hex_color_green[counter],this.C_MAJ_SCALE[counter]);
                     this.instruments.push(tri);
@@ -307,7 +307,7 @@ export default class JamWheel {
                     this.inline_color = this.blue;
                     break;
                 case Pianoetta.type:
-                    var tri = new Pianoetta(this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
+                    var tri = new Pianoetta(this.p5,this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
                         ((this.p5.cos(this.p5.radians(temp)) * radius) + this.circenterX),(this.p5.sin(this.p5.radians(temp)) * radius) + this.circenterY,
                         this.hex_color_peach[counter],this.OCTAVE_LOWER[counter]);
                     this.instruments.push(tri);
@@ -315,7 +315,7 @@ export default class JamWheel {
                     this.inline_color = this.red;
                     break;
                 case Synth1.type:
-                    var tri = new Synth1(this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
+                    var tri = new Synth1(this.p5,this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
                         ((this.p5.cos(this.p5.radians(temp)) * radius) + this.circenterX),(this.p5.sin(this.p5.radians(temp)) * radius) + this.circenterY,
                         this.hex_color_blue[counter],this.C_MAJ_SCALE[counter]);
                     this.instruments.push(tri);

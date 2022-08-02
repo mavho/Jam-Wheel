@@ -5,7 +5,8 @@ class KeyNote{
     same for released.
     show is continusously called
     */
-    constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E"){
+    constructor (p5,x1,y1,x2,y2,x3,y3, in_color="#E1008E"){
+        this.p5 = p5;
         this.x1 = x1;
         this.y1 = y1;
         this.x2 = x2;
@@ -28,14 +29,14 @@ class KeyNote{
     }
 
     clicked(){
-        let color_shade = lerpColor(color(this.orig_color), color(72,61,139), 0.35);
+        let color_shade = this.p5.lerpColor(this.p5.color(this.orig_color), this.p5.color(72,61,139), 0.35);
         this.curr_color = color_shade;
         this.click =true;
     }
 
     dragged(vibrato){
         this.vibratoAmount = vibrato*10;
-        let color_shade = lerpColor(color(this.orig_color), color(72,61,139), 0.35);
+        let color_shade = this.p5.lerpColor(this.p5.color(this.orig_color), this.p5.color(72,61,139), 0.35);
         this.curr_color = color_shade;
     }
     released(){
@@ -44,8 +45,8 @@ class KeyNote{
     }
 
     show(){
-        fill(color(this.curr_color));
-        triangle(this.x1,this.y1,this.x2,this.y2,this.x3,this.y3);
+        this.p5.fill(this.p5.color(this.curr_color));
+        this.p5.triangle(this.x1,this.y1,this.x2,this.y2,this.x3,this.y3);
     }
 }
 /**
@@ -161,8 +162,8 @@ kalimba.connect(reverb);
 
 class Synth1 extends KeyNote{
     static type = "SYNTH1";
-    constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
-        super(x1,y1,x2,y2,x3,y3, in_color);
+    constructor (p5,x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
+        super(p5,x1,y1,x2,y2,x3,y3, in_color);
         this.note = note;
         this.type="SYNTH1";
         this.loop = new Tone.Loop(function(time){
@@ -193,8 +194,8 @@ class Synth1 extends KeyNote{
 }
 class Pianoetta extends KeyNote{
     static type = "PIANOETTA";
-    constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
-        super(x1,y1,x2,y2,x3,y3, in_color);
+    constructor (p5,x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
+        super(p5,x1,y1,x2,y2,x3,y3, in_color);
         this.note = note;
         this.type="PIANOETTA";
         this.loop = new Tone.Loop(function(time){
@@ -223,8 +224,8 @@ class Pianoetta extends KeyNote{
 
 class FatOscillator extends KeyNote{
     static type = "FAT";
-    constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
-        super(x1,y1,x2,y2,x3,y3, in_color);
+    constructor (p5,x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
+        super(p5,x1,y1,x2,y2,x3,y3, in_color);
         this.note = note;
         this.type="FAT";
         this.loop = new Tone.Loop(function(time){
@@ -256,8 +257,8 @@ class FatOscillator extends KeyNote{
  
 class SimpleSynth extends KeyNote{
     static type = "SYNTH";
-    constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
-        super(x1,y1,x2,y2,x3,y3, in_color);
+    constructor (p5,x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
+        super(p5,x1,y1,x2,y2,x3,y3, in_color);
         this.note = note;
         this.type="SYNTH";
         this.loop = new Tone.Loop(function(time){
@@ -287,8 +288,8 @@ class SimpleSynth extends KeyNote{
 
 class Kalimba extends KeyNote{
     static type = "KALIMBA";
-    constructor (x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
-        super(x1,y1,x2,y2,x3,y3, in_color);
+    constructor (p5,x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
+        super(p5,x1,y1,x2,y2,x3,y3, in_color);
         this.note = note;
         this.type="KALIMBA";
         this.loop = new Tone.Loop(function(time){
