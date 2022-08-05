@@ -2,6 +2,7 @@
 use std::{collections::HashMap, convert::Infallible, sync::Arc};
 use tokio::sync::{mpsc, RwLock};
 use warp:: {ws::Message, Filter, Rejection};
+use ws::KeyNoteRequest;
 mod handlers;
 mod ws;
 
@@ -13,6 +14,7 @@ pub struct Client{
     //rand uuid
     pub username: String,
     pub room:String,
+    pub note:Option<KeyNoteRequest>,
     //Allows us to send messages to UnboundedReceiver (client)
     pub sender: Option<mpsc::UnboundedSender<std::result::Result<Message, warp::Error>>>,
 }

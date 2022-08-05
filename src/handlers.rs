@@ -60,6 +60,7 @@ async fn register_client(id: String, username: String,room:String, clients: Clie
     let registering_client = Client {
             username:username,
             room:room,
+            note: None,
             sender: None
         };
     //check if room is full. probably have to use a different way implement, for now this works.

@@ -114,7 +114,7 @@ export default class JamWheel {
     //Receives notes coming from everyone within the room
     wsReceive(e){
         const serverState = JSON.parse(e.data);
-        this.serverState = serverState.notes;
+        this.serverState = serverState;
     }
 
     //establish ws connection
@@ -179,6 +179,10 @@ export default class JamWheel {
 
     }
 
+    mouseReleased = function(){
+        this.playNote = false;
+    }
+
     /**
      * init onclick events
      */
@@ -189,20 +193,8 @@ export default class JamWheel {
         this.p5.mousePressed = function(){
             jw_f.mousedown();
         }
-        /*
-        this.p5.mouseDragged = function(){
-            for(let key of keys){
-                if(key.inTriangle(mouseX,mouseY)){
-                    this.playNote = true;
-                    key.clicked();
-                }
-            }
-
-        }
-        */
-
         this.p5.mouseReleased = function(){
-            this.playNote = false;
+            jw_f.mouseReleased();
         }
 
 
