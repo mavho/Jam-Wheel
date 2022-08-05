@@ -196,12 +196,12 @@ class Synth1 extends KeyNote{
         }, "8t");
 
     }
-    trigger_sound(){
-        synth1.triggerAttackRelease(this.note,"8n");
+    static trigger_sound(note){
+        synth1.triggerAttackRelease(note,"8n");
     }
     clicked(){
-        this.trigger_sound();
-        this.loop.start(0);
+        //this.trigger_sound();
+        //this.loop.start(0);
         super.clicked();
     }
     playDragged(){
@@ -228,12 +228,12 @@ class Pianoetta extends KeyNote{
         }, "8t");
 
     }
-    trigger_sound(){
-        pianoetta.triggerAttackRelease(this.note,"8n");
+    static trigger_sound(note){
+        pianoetta.triggerAttackRelease(note,"8n");
     }
     clicked(){
-        this.trigger_sound();
-        this.loop.start(0);
+        //this.trigger_sound();
+        //this.loop.start(0);
         super.clicked();
     }
     playDragged(){
@@ -258,12 +258,12 @@ class FatOscillator extends KeyNote{
         }, "8t");
 
     }
-    trigger_sound(){
-        sawtooth.triggerAttackRelease(this.note,"8n");
+    static trigger_sound(note){
+        sawtooth.triggerAttackRelease(note,"8n");
     }
     clicked(){
-        this.trigger_sound();
-        this.loop.start(0);
+        //this.trigger_sound();
+        //this.loop.start(0);
         super.clicked();
     }
     dragged(){
@@ -290,12 +290,12 @@ class SimpleSynth extends KeyNote{
             simpleSynth.triggerAttackRelease(curr_note, "8n", time)
         }, "8t");
     }
-    trigger_sound(){
-        simpleSynth.triggerAttackRelease(this.note,"8n");
+    static trigger_sound(note){
+        simpleSynth.triggerAttackRelease(note,"8n");
     }
     clicked(){
-        this.trigger_sound();
-        this.loop.start(0);
+        //this.trigger_sound();
+        //this.loop.start(0);
         super.clicked();
     }
     dragged(){
@@ -321,12 +321,12 @@ class Kalimba extends KeyNote{
             kalimba.triggerAttackRelease(curr_note, "8n.", time)
         }, "8t");
     }
-    trigger_sound(){
-        kalimba.triggerAttackRelease(this.note,"8n");
+    static trigger_sound(note){
+        kalimba.triggerAttackRelease(note,"8n");
     }
     clicked(){
-        this.trigger_sound();
-        this.loop.start(0);
+        //this.trigger_sound();
+        //this.loop.start(0);
         super.clicked();
     }
     dragged(){
@@ -341,76 +341,4 @@ class Kalimba extends KeyNote{
         super.released();
     }
 
-}
-
-
-//handles the loop from other players
-class UserLoop {
-    constructor(type,note) {
-        //this value is used in drawIncomingNotes
-        //todo set this up
-        this.env_val= 0.00;
-        this.color = blue;
-        this.loop = this._determineLoopType(type);
-        this.type = type;
-        this.note = note;
-        this.instrument = membrane_synth;
-    }
-    _determineLoopType(type) {
-        /**
-         * We use bind because we want to use the loop again in the future.
-         * Not too much overhead...
-         */
-        switch (type) {
-            case FatOscillator.type:
-                this.color=blue;
-                this.instrument = sawtooth;
-                return new Tone.Loop(function (time) {
-                    sawtooth.triggerAttackRelease(this.note,"8n.", time);
-                }.bind(this), "8t");
-            case SimpleSynth.type:
-                this.color=peach;
-                this.instrument = simpleSynth;
-                return new Tone.Loop(function (time) {
-                    simpleSynth.triggerAttackRelease(this.note, "8n.", time);
-                }.bind(this), "8t");
-            case Kalimba.type:
-                this.color=blue;
-                this.instrument = kalimba;
-                return new Tone.Loop(function (time) {
-                    kalimba.triggerAttackRelease(this.note, "8n.", time);
-                }.bind(this), "8t");
-            case Pianoetta.type:
-                this.color=red;
-                this.instrument = pianoetta;
-                return new Tone.Loop(function (time) {
-                    pianoetta.triggerAttackRelease(this.note, "8n.", time);
-                }.bind(this), "8t");
-            case Synth1.type:
-                this.color=green;
-                this.instrument = synth1;
-                return new Tone.Loop(function (time) {
-                    synth1.triggerAttackRelease(this.note, "8n.", time);
-                }.bind(this), "8t");
-        }
-    } 
-
-    isPlaying(){
-        return this.loop.state == "started";
-    }
-    updateNote(note){
-        this.note = note;
-    }
-    getEnvValue(){
-        return this.instrument.envelope.value;
-    }
-    hasStoped(){
-        return this.loop.state == "stopped";
-    }
-    startLoop(){
-        this.loop.start(0);
-    }
-    endLoop(){
-        this.loop.stop();
-    }
 }

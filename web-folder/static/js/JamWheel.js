@@ -170,17 +170,32 @@ export default class JamWheel {
             if(key.inTriangle(this.p5.mouseX,this.p5.mouseY)){
                 this.playNote = true;
                 this.pressed_key = key;
-                //key.clicked();
-                console.log("clicked on note")
+                this.pressed_key.clicked();
                 break;
             }
         }
-        console.log("clicked on nothing")
 
+    }
+
+    mouseDragged = function(){
+        for(let key of this.instruments){
+            if(key.inTriangle(this.p5.mouseX,this.p5.mouseY)){
+                this.playNote = true;
+
+                if(key !== this.pressed_key){
+                    this.pressed_key.released();
+                    this.pressed_key = key;
+                }
+
+                this.pressed_key.clicked();
+                break;
+            }
+        }
     }
 
     mouseReleased = function(){
         this.playNote = false;
+        this.pressed_key.released();
     }
 
     /**
@@ -192,6 +207,10 @@ export default class JamWheel {
 
         this.p5.mousePressed = function(){
             jw_f.mousedown();
+        }
+
+        this.p5.mouseDragged = function(){
+            jw_f.mouseDragged();
         }
         this.p5.mouseReleased = function(){
             jw_f.mouseReleased();
@@ -231,14 +250,30 @@ export default class JamWheel {
      */
 
     playIncomingNotes(){
+        if(!this.serverState)return;
         // Add a frame to the notes stack to represent this pulse
         this.noteStack.unshift(this.serverState);
 
         // Play each sound distributed by the server
-        Object.keys(this.serverState)
-        .sort()
-        .forEach((i) => {
-            console.log(i);
+        this.serverState
+        .forEach((n) => {
+            switch(n.instrument){
+                case FatOscillator.type:
+                    FatOscillator.trigger_sound(n.note);
+                    break;
+                case SimpleSynth.type:
+                    SimpleSynth.trigger_sound(n.note);
+                    break;
+                case Kalimba.type:
+                    Kalimba.trigger_sound(n.note);
+                    break;
+                case Pianoetta.type:
+                    Pianoetta.trigger_sound(n.note);
+                    break;
+                case Synth1.type:
+                    Synth1.trigger_sound(n.note);
+                    break;
+            }
         });
 
     }
