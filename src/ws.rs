@@ -16,10 +16,10 @@ pub struct ReleaseRequest{
 
 #[derive(Deserialize,Serialize,Clone,Debug)]
 pub struct KeyNoteRequest{
-    event: String,
+    //event: String,
     note: String,
     instrument: String,
-    toggle: bool,
+    playnote: bool,
     username: String,
     channel: String
 }
@@ -121,8 +121,8 @@ async fn client_msg(client_id: &str, msg:Message, clients:&Clients){
 
     //destructure the request, and process them based on the type of request
     match request {
-        Request::KeyNote(KeyNoteRequest{event,note,instrument,username,channel,toggle}) =>{
-            //println!("keynote {} instrument {} user {} channel {} toggle {}",note, instrument,username, channel,toggle);
+        Request::KeyNote(KeyNoteRequest{note,instrument,username,channel,playnote}) =>{
+            //println!("keynote {} instrument {} user {} channel {} playnote {}",note, instrument,username, channel,playnote);
 
             clients
                 .read().await
@@ -130,11 +130,11 @@ async fn client_msg(client_id: &str, msg:Message, clients:&Clients){
                 //clients subscribed to the topic
                 .filter(|(_, client)| client.room.eq(&channel))
                 //Clients that aren't the sender
-                .filter(|(_, client)| client.username.ne(&username))
+                //.filter(|(_, client)| client.username.ne(&username))
                 .for_each(|(_, client)| {
                     //We're using the variables (note,instrument..) outside this closure. We need to clone it
                     let forwarded_keynote = Request::KeyNote(KeyNoteRequest{
-                        event:event.clone(),note:note.clone(),instrument:instrument.clone(),username:username.clone(),channel:channel.clone(),toggle:toggle.clone()
+                        note:note.clone(),instrument:instrument.clone(),username:username.clone(),channel:channel.clone(),playnote:playnote.clone()
                     });
 
                     let json = serde_json::to_string(&forwarded_keynote).unwrap();

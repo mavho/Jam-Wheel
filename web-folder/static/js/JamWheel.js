@@ -9,8 +9,8 @@ export default class JamWheel {
     userId = null; // User id given by server (identifies uri)
     username =null; //username
     room = null; //roomname
-    serverState = null; // State from server
-    instruments = []; //instruments
+    instruments = [];//holds all instrument sounds
+    serverState = []; // State from server
     noteStack = []; // Notes currently being played
     pulseNumber = 0; // keep a beat
     pulseTimer = null; // setTimeout
@@ -24,6 +24,7 @@ export default class JamWheel {
     curr_type = "KALIMBA";
     circenterX = null;
     circenterY = null;
+    pressed_key = new KeyNote();
     
     hex_color_wheel = ["#E50018","#E1008E","#BA00DD","#4400D9","#002CD5","#009AD2","#00CE98","#00CA2A","#3EC600","#A3C200"]
 
@@ -91,6 +92,9 @@ export default class JamWheel {
      */
     _init() {
         this.connectWebSockets();
+        this.createSwitcher();
+
+        this.initEvents();
     }
 
 
@@ -107,7 +111,7 @@ export default class JamWheel {
         this.websocket.onerror = this.error.bind(this);
     }
 
-    //Receives
+    //Receives notes coming from everyone within the room
     wsReceive(e){
         const serverState = JSON.parse(e.data);
         this.serverState = serverState.notes;
@@ -120,7 +124,6 @@ export default class JamWheel {
         $('#title').removeClass("glow").addClass("muted-glow");
 
         this.initEvents();
-        this.createSwitcher();
     }
 
     //clean up ws and page happens here
@@ -142,10 +145,67 @@ export default class JamWheel {
         throw e;
     }
 
-    destroy(){}
+    destroy(){
+        clearInterval(this.pulseTimer);
+    }
 
 
+    send(){
+        let payload= {
+            note: this.pressed_key.note,
+            instrument: this.pressed_key.type,
+            playnote: this.playNote,
+            channel: this.room,
+            username: this.username
+        }
+
+        //console.log(payload);
+
+        this.websocket.send(JSON.stringify(payload));
+    }
+
+
+    mousedown = function(){
+        for(let key of this.instruments){
+            if(key.inTriangle(this.p5.mouseX,this.p5.mouseY)){
+                this.playNote = true;
+                this.pressed_key = key;
+                //key.clicked();
+                console.log("clicked on note")
+                break;
+            }
+        }
+        console.log("clicked on nothing")
+
+    }
+
+    /**
+     * init onclick events
+     */
     initEvents(){
+        var jw_f = this;
+
+
+        this.p5.mousePressed = function(){
+            jw_f.mousedown();
+        }
+        /*
+        this.p5.mouseDragged = function(){
+            for(let key of keys){
+                if(key.inTriangle(mouseX,mouseY)){
+                    this.playNote = true;
+                    key.clicked();
+                }
+            }
+
+        }
+        */
+
+        this.p5.mouseReleased = function(){
+            this.playNote = false;
+        }
+
+
         window.requestAnimationFrame(this.draw.bind(this));
 
         // Periodically send the cursor position and redraw
@@ -156,7 +216,6 @@ export default class JamWheel {
     //draws initial GUI
     //then tries to init
     run(){
-
         this.p5.noLoop();
         //document,getElementById("landing_page").hide();
         const border = document.getElementById("sketch");
@@ -175,6 +234,22 @@ export default class JamWheel {
         this._init();
     }
 
+    /**
+     * Play incoming notes
+     */
+
+    playIncomingNotes(){
+        // Add a frame to the notes stack to represent this pulse
+        this.noteStack.unshift(this.serverState);
+
+        // Play each sound distributed by the server
+        Object.keys(this.serverState)
+        .sort()
+        .forEach((i) => {
+            console.log(i);
+        });
+
+    }
 
 
     /**
@@ -182,6 +257,8 @@ export default class JamWheel {
      */
 
     draw(){
+        this.send();
+
         this.p5.background(this.canvas_color);
         var r = 150;
         this.p5.noFill();
@@ -194,7 +271,7 @@ export default class JamWheel {
             this.p5.ellipse(this.circenterX,this.circenterY, x2, y2);
         }
         //TODO: make this more efficient.
-        //drawIncomingNotes(r,40);
+        this.playIncomingNotes();
 
         this.p5.stroke(this.inline_color);
         this.p5.strokeWeight(2);
