@@ -14,12 +14,6 @@ export default class JamWheel {
     noteStack = []; // Notes currently being played
     pulseNumber = 0; // keep a beat
     pulseTimer = null; // setTimeout
-    scrollTimer = null; // setTimeout
-    scaleCursor = null; // Controls circle size/growth
-    patchIndex = 1; // Initial patch= 0 must be percission
-    gain = 1; // volume
-    pan = 0; // pan
-    patches = []; // Loaded on instantiation
     p5 = null;
     curr_type = "KALIMBA";
     circenterX = null;
@@ -257,23 +251,42 @@ export default class JamWheel {
         // Play each sound distributed by the server
         this.serverState
         .forEach((n) => {
+            this.p5.noFill();
+
             switch(n.instrument){
                 case FatOscillator.type:
                     FatOscillator.trigger_sound(n.note);
+                    this.p5.stroke("#FFFFFF");
                     break;
                 case SimpleSynth.type:
                     SimpleSynth.trigger_sound(n.note);
+                    this.p5.stroke("#FFFFFF");
                     break;
                 case Kalimba.type:
                     Kalimba.trigger_sound(n.note);
+                    this.p5.stroke("#FFFFFF");
                     break;
                 case Pianoetta.type:
                     Pianoetta.trigger_sound(n.note);
+                    this.p5.stroke("#FFFFFF");
                     break;
                 case Synth1.type:
                     Synth1.trigger_sound(n.note);
+                    this.p5.stroke("#FFFFFF");
                     break;
             }
+
+            var PI = this.p5.PI;
+            var r= 150;
+            var env = this.membrane_synth.envelope.value;
+            this.p5.strokeWeight(7);
+            //draws an ellipse
+            for (let i = 0; i < 3; i++){
+                let x2 = (r + env*200)*this.p5.tan(2*PI/env);
+                let y2 = (r + env*200)*this.p5.tan(2*PI/env);
+                this.p5.ellipse(this.p5.cir_centerX,this.p5.cir_centerY, x2, y2);
+            }
+
         });
 
     }
