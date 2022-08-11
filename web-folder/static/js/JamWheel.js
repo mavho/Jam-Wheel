@@ -9,7 +9,8 @@ export default class JamWheel {
     userId = null; // User id given by server (identifies uri)
     username =null; //username
     room = null; //roomname
-    instruments = [];//holds all instrument sounds
+    keyWheel = []; //current jamwheel (for rendering)
+    //INSTRUMENTS = []; //holds all instrument sounds
     serverState = []; // State from server
     noteStack = []; // Notes currently being played
     pulseNumber = 0; // keep a beat
@@ -89,6 +90,7 @@ export default class JamWheel {
         this.createSwitcher();
 
         this.initEvents();
+        //this.initInstruments();
     }
 
 
@@ -107,6 +109,7 @@ export default class JamWheel {
 
     //Receives notes coming from everyone within the room
     wsReceive(e){
+        console.log("receive");
         const serverState = JSON.parse(e.data);
         this.serverState = serverState;
     }
@@ -160,7 +163,7 @@ export default class JamWheel {
 
 
     mousedown = function(){
-        for(let key of this.instruments){
+        for(let key of this.keyWheel){
             if(key.inTriangle(this.p5.mouseX,this.p5.mouseY)){
                 this.playNote = true;
                 this.pressed_key = key;
@@ -172,7 +175,7 @@ export default class JamWheel {
     }
 
     mouseDragged = function(){
-        for(let key of this.instruments){
+        for(let key of this.keyWheel){
             if(key.inTriangle(this.p5.mouseX,this.p5.mouseY)){
                 this.playNote = true;
 
@@ -191,6 +194,7 @@ export default class JamWheel {
         this.playNote = false;
         this.pressed_key.released();
     }
+
 
     /**
      * init onclick events
@@ -217,6 +221,8 @@ export default class JamWheel {
         this.pulseTimer = setInterval(this.draw.bind(this), this.options.pulseMS);
 
     }
+
+
 
     //draws initial GUI
     //then tries to init
@@ -252,6 +258,7 @@ export default class JamWheel {
         this.serverState
         .forEach((n) => {
             this.p5.noFill();
+            console.log(n.instrument);
 
             switch(n.instrument){
                 case FatOscillator.type:
@@ -315,8 +322,8 @@ export default class JamWheel {
 
         this.p5.stroke(this.inline_color);
         this.p5.strokeWeight(2);
-        for(let i = 0; i < this.instruments.length; i++){
-            this.instruments[i].show();
+        for(let i = 0; i < this.keyWheel.length; i++){
+            this.keyWheel[i].show();
         }
 
     }
@@ -390,7 +397,7 @@ export default class JamWheel {
         this.circenterX= this.canvas.width/2;
         this.circenterY = this.canvas.height/2;
 
-        this.instruments = [];
+        this.keyWheel = [];
         let counter = 0 
         //draw the triangle circle
         for (let angle=270;angle<630;angle=angle+pointAngle){
@@ -403,7 +410,7 @@ export default class JamWheel {
                     var tri = new FatOscillator(this.p5,this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
                         ((this.p5.cos(this.p5.radians(temp)) * radius) + this.circenterX),(this.p5.sin(this.p5.radians(temp)) * radius) + this.circenterY,
                         this.hex_color_red[counter],this.OCTAVE_LOWER[counter]);
-                    this.instruments.push(tri);
+                    this.keyWheel.push(tri);
                     this.canvas_color = this.red;
                     this.inline_color = this.blue;
                     break;
@@ -411,7 +418,7 @@ export default class JamWheel {
                     var tri = new SimpleSynth(this.p5,this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
                         ((this.p5.cos(this.p5.radians(temp)) * radius) + this.circenterX),(this.p5.sin(this.p5.radians(temp)) * radius) + this.circenterY,
                         this.hex_color_yellow[counter],this.OCTAVE_LOWER[counter]);
-                    this.instruments.push(tri);
+                    this.keyWheel.push(tri);
                     this.canvas_color = this.yellow;
                     this.inline_color = this.peach;
                     break;
@@ -419,7 +426,7 @@ export default class JamWheel {
                     var tri = new Kalimba(this.p5,this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
                         ((this.p5.cos(this.p5.radians(temp)) * radius) + this.circenterX),(this.p5.sin(this.p5.radians(temp)) * radius) + this.circenterY,
                         this.hex_color_green[counter],this.C_MAJ_SCALE[counter]);
-                    this.instruments.push(tri);
+                    this.keyWheel.push(tri);
                     this.canvas_color = this.green;
                     this.inline_color = this.blue;
                     break;
@@ -427,7 +434,7 @@ export default class JamWheel {
                     var tri = new Pianoetta(this.p5,this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
                         ((this.p5.cos(this.p5.radians(temp)) * radius) + this.circenterX),(this.p5.sin(this.p5.radians(temp)) * radius) + this.circenterY,
                         this.hex_color_peach[counter],this.OCTAVE_LOWER[counter]);
-                    this.instruments.push(tri);
+                    this.keyWheel.push(tri);
                     this.canvas_color = this.peach;
                     this.inline_color = this.red;
                     break;
@@ -435,7 +442,7 @@ export default class JamWheel {
                     var tri = new Synth1(this.p5,this.circenterX,this.circenterY,x+this.circenterX,y+this.circenterY,
                         ((this.p5.cos(this.p5.radians(temp)) * radius) + this.circenterX),(this.p5.sin(this.p5.radians(temp)) * radius) + this.circenterY,
                         this.hex_color_blue[counter],this.C_MAJ_SCALE[counter]);
-                    this.instruments.push(tri);
+                    this.keyWheel.push(tri);
                     this.canvas_color = this.blue;
                     this.inline_color = this.green;
                     break;

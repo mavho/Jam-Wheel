@@ -80,7 +80,7 @@ class KeyNote{
  */
 var autoWah = new Tone.AutoWah(50, 6, -30).toMaster();
 
-var simpleSynth = new Tone.Synth({
+var SIMPLESYNTH= new Tone.Synth({
     "oscillator": {
         "type": "sine",
         "partialCount": 5,
@@ -93,7 +93,7 @@ var simpleSynth = new Tone.Synth({
     }
 }).toMaster();
 
-var synth1 = new Tone.Synth({
+var SYNTH1 = new Tone.Synth({
     "oscillator":{
         "type":"fatcustom",
         "spread":40,
@@ -110,7 +110,7 @@ var synth1 = new Tone.Synth({
     }
 }).toMaster();
 
-var sawtooth = new Tone.Synth({
+var SAWTOOTH = new Tone.Synth({
     "oscillator":{
         "type": "fatsawtooth",
         "count": 3,
@@ -126,7 +126,7 @@ var sawtooth = new Tone.Synth({
 }).toMaster();
 
 //Wtf is a pianoetta lol
-var pianoetta = new Tone.Synth({
+var PIANOETTA = new Tone.Synth({
     "oscillator": {
         "type": "square"
     },
@@ -152,7 +152,7 @@ var pianoetta = new Tone.Synth({
 }).toMaster();
 
 
-var kalimba = new Tone.Synth({
+var KALIMBA = new Tone.Synth({
     "harmonicity":8,
     "modulationIndex": 2,
     "oscillator" : {
@@ -183,161 +183,101 @@ var reverb = new Tone.Freeverb({
        "wet": 0.2
 });
 // make connections
-kalimba.connect(reverb);
+KALIMBA.connect(reverb);
 
 class Synth1 extends KeyNote{
     static type = "SYNTH1";
+    static instrument = SYNTH1;
     constructor (p5,x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
         super(p5,x1,y1,x2,y2,x3,y3, in_color);
-        this.note = note;
         this.type="SYNTH1";
-        this.loop = new Tone.Loop(function(time){
-            synth1.triggerAttackRelease(curr_note, "8n.", time)
-        }, "8t");
-
+        this.note = note;
     }
     static trigger_sound(note){
-        synth1.triggerAttackRelease(note,"8n");
+        Synth1.instrument.triggerAttackRelease(note,"8n");
     }
     clicked(){
-        //this.trigger_sound();
-        //this.loop.start(0);
         super.clicked();
-    }
-    playDragged(){
-        this.loop.start(0);
-    }
-    dragged(){
-        super.dragged();
     }
 
     released(){
-        this.loop.stop();
-        //this.noiseSynth.triggerRelease();
         super.released();
     }
 }
 class Pianoetta extends KeyNote{
     static type = "PIANOETTA";
+    static instrument = PIANOETTA;
     constructor (p5,x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
         super(p5,x1,y1,x2,y2,x3,y3, in_color);
-        this.note = note;
         this.type="PIANOETTA";
-        this.loop = new Tone.Loop(function(time){
-            pianoetta.triggerAttackRelease(curr_note, "8n.", time)
-        }, "8t");
-
+        this.note=note;
     }
     static trigger_sound(note){
-        pianoetta.triggerAttackRelease(note,"8n");
+        Pianoetta.instrument.triggerAttackRelease(note,"8n");
     }
     clicked(){
-        //this.trigger_sound();
-        //this.loop.start(0);
         super.clicked();
-    }
-    playDragged(){
-        this.loop.start(0);
     }
 
     released(){
-        this.loop.stop();
-        //this.noiseSynth.triggerRelease();
         super.released();
     }
 }
 
 class FatOscillator extends KeyNote{
     static type = "FAT";
+    static instrument = SAWTOOTH;
     constructor (p5,x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
         super(p5,x1,y1,x2,y2,x3,y3, in_color);
-        this.note = note;
         this.type="FAT";
-        this.loop = new Tone.Loop(function(time){
-            sawtooth.triggerAttackRelease(curr_note, "8n.", time)
-        }, "8t");
-
+        this.note = note;
     }
     static trigger_sound(note){
-        sawtooth.triggerAttackRelease(note,"8n");
+        FatOscillator.instrument.triggerAttackRelease(note,"8n");
     }
     clicked(){
-        //this.trigger_sound();
-        //this.loop.start(0);
         super.clicked();
     }
-    dragged(){
-        super.dragged();
-    }
-    playDragged(){
-        this.loop.start(0);
-    }
-
     released(){
-        this.loop.stop();
-        //this.noiseSynth.triggerRelease();
         super.released();
     }
 }
  
 class SimpleSynth extends KeyNote{
     static type = "SYNTH";
+    static instrument = SIMPLESYNTH;
     constructor (p5,x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
         super(p5,x1,y1,x2,y2,x3,y3, in_color);
-        this.note = note;
         this.type="SYNTH";
-        this.loop = new Tone.Loop(function(time){
-            simpleSynth.triggerAttackRelease(curr_note, "8n", time)
-        }, "8t");
+        this.note = note;
     }
     static trigger_sound(note){
-        simpleSynth.triggerAttackRelease(note,"8n");
+        SimpleSynth.instrument.triggerAttackRelease(note,"8n");
     }
     clicked(){
-        //this.trigger_sound();
-        //this.loop.start(0);
         super.clicked();
     }
-    dragged(){
-        super.dragged();
-    }
-    playDragged(){
-        this.loop.start(0);
-    }
+
     released(){
-        this.loop.stop();
-        //this.noiseSynth.triggerRelease();
         super.released();
     }
 }
 
 class Kalimba extends KeyNote{
     static type = "KALIMBA";
+    static instrument = KALIMBA;
     constructor (p5,x1,y1,x2,y2,x3,y3, in_color="#E1008E",note){
         super(p5,x1,y1,x2,y2,x3,y3, in_color);
-        this.note = note;
         this.type="KALIMBA";
-        this.loop = new Tone.Loop(function(time){
-            kalimba.triggerAttackRelease(curr_note, "8n.", time)
-        }, "8t");
+        this.note = note;
     }
     static trigger_sound(note){
-        kalimba.triggerAttackRelease(note,"8n");
+        Kalimba.instrument.triggerAttackRelease(note,"8n");
     }
     clicked(){
-        //this.trigger_sound();
-        //this.loop.start(0);
         super.clicked();
     }
-    dragged(){
-        super.dragged();
-    }
-    playDragged(){
-        this.loop.start(0);
-    }
     released(){
-        this.loop.stop();
-        //this.noiseSynth.triggerRelease();
         super.released();
     }
 
