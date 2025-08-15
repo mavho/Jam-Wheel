@@ -1,7 +1,7 @@
 {
   "name": "music_app",
   "version": "1.0.0",
-  "description": "",
+  "description": "![hmm](jam_wheel.PNG)\r ## What is this?\r This is a web application for users to jam together! Just enter a room ID and username, and you're connected to users in that room. Play notes on the jam wheel to make beats with other users.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,7 +11,17 @@
   "dependencies": {
     "bufferutil": "^4.0.1",
     "jquery": "^3.6.0",
+    "p5": "1.11.9",
     "tone": "^13.8.25",
     "utf-8-validate": "^5.0.2"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mavho/Jam-Wheel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mavho/Jam-Wheel/issues"
+  },
+  "homepage": "https://github.com/mavho/Jam-Wheel#readme"
 }

@@ -7,6 +7,7 @@ mod handlers;
 mod ws;
 
 const WEB_FOLDER: &str = "web-folder/";
+const NODE_MOD_FOLDER: &str = "node_modules/";
 
 //client struct
 #[derive(Debug,Clone)]
@@ -48,16 +49,19 @@ async fn main(){
         .and(warp::fs::file(format!("{}/templates/_layouts/index.html",WEB_FOLDER)));
 
     /*
-    let templates = warp::get().and(warp::path!("templates"))
+    let templates = warp::get().anWEB_FOLDERd(warp::path!("templates"))
         .and(warp::fs::dir(format!("{}/templates/_includes/",WEB_FOLDER)));
     */
 
     let js =  warp::get().and(warp::path!("static"))
         .and(warp::fs::dir(format!("{}/static/js/",WEB_FOLDER)));
 
+    let node_modules = warp::get().and(warp::path!("node_modules"))
+        .and(warp::fs::dir(format!("{}/node_modules/",NODE_MOD_FOLDER)));
+
     
 
-    let static_site = index.or(js).or(html_content);
+    let static_site = index.or(js).or(html_content).or(node_modules);
 
     // GET Health Check route
     let health_route = warp::path!("health")

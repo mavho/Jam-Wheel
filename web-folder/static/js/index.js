@@ -1,5 +1,3 @@
-import JamWheel from "./JamWheel.js";
-
 var room_name = "";
 var user_name = "";
 

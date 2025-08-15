@@ -12,3 +12,8 @@ This application is still under development, there's still a lot of work to do!
 - Randomized User names.
 - Better sound quality and buffering.
 - Better instruments.
+
+# Building Node Modules
+
+- update the package.json with the required versions of each package. Move it to the JS folder, and install it with
+npm install --prefix web-folder/static/js/

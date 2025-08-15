@@ -1,0 +1,18 @@
+__pycache__/
+.vscode/
+# Added by cargo
+Cargo.lock
+.cargo/
+# Rust target folder
+/target
+*/p5/
+*/templates/_includes/debug.html
+# Node modules
+package-lock.json
+web-folder/static/css/specimen_files/*
+web-folder/static/css/badscript-regular-demo.html
+web-folder/static/js/node_modules/
+
+# dev p5
+p5/
+

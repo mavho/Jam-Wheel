@@ -1,4 +1,4 @@
-export default class JamWheel {
+class JamWheel {
     playNote = false; // Is a note being played?
     canvas = null; // The canvas this code creates
     canvas_color = "black";
