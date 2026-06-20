@@ -1,75 +1,55 @@
-# React + TypeScript + Vite
+# Linting & Formatting Setup (ESLint + Prettier)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This document covers the ESLint and Prettier configuration added to `music_app/`,
+why each piece exists, and how to use it day to day.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 1. ESLint — `eslint.config.js`
 
-## React Compiler
+Location: `music_app/eslint.config.js`
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## 2. Prettier — `.prettierrc` and `.prettierignore`
 
-Note: This will impact Vite dev & build performances.
+Use to format code. Our local settings.json will use our music_app.prettierrc to format
+the documents.
 
-## Expanding the ESLint configuration
+## 3. Example Commands
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Run these from inside `music_app/`:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+yarn format
+yarn lint:fix
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 4. Adding Dev Dependencies with Yarn
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Dev dependencies are tools used during development (linting, formatting, build
+tooling) but not shipped in the production app. Install them with `--dev`:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+yarn add --dev <package-name>
 ```
+
+Example — packages added as part of this setup:
+
+```bash
+yarn add --dev eslint-config-prettier
+```
+
+(`prettier` itself was already in your `devDependencies`.)
+
+This updates `package.json`'s `devDependencies` block and `yarn.lock`
+automatically. To remove one later:
+
+```bash
+yarn remove <package-name>
+```
+
+**Order of operations on save:** Prettier formats first → ESLint autofix runs second.
+
+Required VS Code extensions:
+
+- `dbaeumer.vscode-eslint` (ESLint)
+- `esbenp.prettier-vscode` (Prettier)
