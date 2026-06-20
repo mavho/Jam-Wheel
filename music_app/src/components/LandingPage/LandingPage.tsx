@@ -53,7 +53,7 @@ function LandingPage() {
                 under active development, there is still much to work on. If you want to help
                 collaborate email me at{' '}
                 <a href="mailto:homaverick@gmail.com">homaverick@gmail.com</a> and I can set up
-                collaboraters.
+                collaborators.
               </p>
             </Div>
           </Div>
