@@ -1,8 +1,30 @@
 import type {Bulma} from 'trunx';
-import {Section, Div, Columns, Column} from 'trunx';
+import {Section, Div, Columns, Column, Input} from 'trunx';
 import './LandingPage.scss';
+import {useState} from 'react';
 
-function LandingPage() {
+interface LandingPagePropInterface {
+  maxRoomLength: number;
+  maxUserLength: number;
+}
+
+function LandingPage(props: LandingPagePropInterface) {
+  const [roomInputValue, setRoomInputValue] = useState('');
+  const [userInputValue, setUserInputValue] = useState('');
+
+  const roomLength = props.maxRoomLength - roomInputValue.length;
+  const userLength = props.maxUserLength - userInputValue.length;
+
+  const roomInputBulma: Bulma[] = [roomLength < 0 ? 'is-danger' : 'has-text-grey-lighter'];
+  const userInputBulma: Bulma[] = [userLength < 0 ? 'is-danger' : 'has-text-grey-lighter'];
+
+  const onRoomInputVal = (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
+    setRoomInputValue(e.target.value.substring(0, props.maxRoomLength));
+  };
+  const onUserInputVal = (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
+    setUserInputValue(e.target.value.substring(0, props.maxUserLength));
+  };
+
   return (
     <Section id="container" bulma={['is-widescreen', 'is-fullwidth', 'has-background-black']}>
       <Columns id="landing_page" bulma={'is-centered' satisfies Bulma}>
@@ -17,25 +39,29 @@ function LandingPage() {
 
             <Columns>
               <Column>
-                <input
+                <Input
                   id="room_input"
-                  className="input has-text-grey-lighter"
+                  value={roomInputValue}
+                  bulma={roomInputBulma}
                   type="text"
                   placeholder="Enter Room Name..."
+                  onChange={onRoomInputVal}
                 />
                 <div className="has-text-grey-lighter" id="room_counter">
-                  8
+                  {roomLength}
                 </div>
               </Column>
               <Column>
-                <input
+                <Input
                   id="username_input"
-                  className="input has-text-grey-lighter"
+                  value={userInputValue}
+                  bulma={userInputBulma}
                   type="text"
                   placeholder="Enter UserName..."
+                  onChange={onUserInputVal}
                 />
                 <div className="has-text-grey-lighter has-text-right" id="user_counter">
-                  16
+                  {userLength}
                 </div>
               </Column>
             </Columns>
