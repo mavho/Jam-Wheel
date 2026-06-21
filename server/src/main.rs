@@ -102,8 +102,8 @@ async fn main(){
         //use our dev config
         warp::serve(routes)
             .tls()
-            .cert_path("cert.pem")
-            .key_path("key.rsa")
+            .cert_path("auth/cert.pem")
+            .key_path("auth/key.rsa")
             .run(([0,0,0,0],port)).await;
     }else{
         println!("Heroku configuration detected");

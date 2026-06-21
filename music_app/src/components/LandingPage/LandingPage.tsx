@@ -7,10 +7,15 @@ import type {Session} from '../../App';
 interface LandingPagePropInterface {
   maxRoomLength: number;
   maxUserLength: number;
-  session?: Session | null;
+  onRegistered: (session: Session) => void;
+}
+
+interface RegisterResp {
+  url: string;
 }
 
 function LandingPage(props: LandingPagePropInterface) {
+  const {onRegistered} = props;
   const [roomInputValue, setRoomInputValue] = useState('');
   const [userInputValue, setUserInputValue] = useState('');
 
@@ -25,6 +30,30 @@ function LandingPage(props: LandingPagePropInterface) {
   };
   const onUserInputVal = (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
     setUserInputValue(e.target.value.substring(0, props.maxUserLength));
+  };
+
+  const registerUser = () => {
+    let xhr = new XMLHttpRequest();
+    let url = `http://${location.hostname}:${location.port}/register`;
+
+    xhr.open('POST', url);
+
+    let json = JSON.stringify({
+      username: userInputValue,
+      room: roomInputValue,
+    });
+    xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+    xhr.send(json);
+
+    xhr.onload = () => {
+      let payload: RegisterResp = JSON.parse(xhr.response);
+      const session: Session = {
+        username: userInputValue,
+        roomId: roomInputValue,
+        sessionId: payload.url,
+      };
+      onRegistered(session);
+    };
   };
 
   return (
@@ -73,6 +102,7 @@ function LandingPage(props: LandingPagePropInterface) {
                 id="room_join"
                 bulma={['button', 'is-flex', 'has-text-light']}
                 className="purple-button"
+                onClick={registerUser}
               >
                 Join Room!
               </Span>

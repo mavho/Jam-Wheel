@@ -1,13 +1,9 @@
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
-import './main.scss';
-
-import LandingPage from './components/LandingPage/LandingPage';
-import Banner from './components/TitleBanner/TitleBanner';
+import App from './App';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Banner />
-    <LandingPage maxRoomLength={8} maxUserLength={16} />
+    <App />
   </StrictMode>
 );
