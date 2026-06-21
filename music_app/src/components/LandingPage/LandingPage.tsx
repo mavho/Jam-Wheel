@@ -1,11 +1,13 @@
 import type {Bulma} from 'trunx';
-import {Section, Div, Columns, Column, Input} from 'trunx';
+import {Section, Div, Columns, Column, Input, Span} from 'trunx';
 import './LandingPage.scss';
 import {useState} from 'react';
+import type {Session} from '../../App';
 
 interface LandingPagePropInterface {
   maxRoomLength: number;
   maxUserLength: number;
+  session?: Session | null;
 }
 
 function LandingPage(props: LandingPagePropInterface) {
@@ -30,7 +32,7 @@ function LandingPage(props: LandingPagePropInterface) {
       <Columns id="landing_page" bulma={'is-centered' satisfies Bulma}>
         <Column bulma={'is-half' satisfies Bulma}>
           <Div id="window" bulma="box">
-            <Div bulma={['box', 'has-background-grey']}>
+            <Div bulma={['box']}>
               <h1 className="has-text-grey-lighter">
                 Jam Wheel is an interactive multiplayer jam session. Simply enter a room ID and
                 username and start jamming!
@@ -66,13 +68,17 @@ function LandingPage(props: LandingPagePropInterface) {
               </Column>
             </Columns>
 
-            <Div bulma={['box', 'has-background-grey']}>
-              <span id="room_join" className="button is-flex purple-button has-text-light">
+            <Div bulma={['box']}>
+              <Span
+                id="room_join"
+                bulma={['button', 'is-flex', 'has-text-light']}
+                className="purple-button"
+              >
                 Join Room!
-              </span>
+              </Span>
             </Div>
 
-            <Div bulma={['box', 'has-background-grey']}>
+            <Div bulma={['box']}>
               <p className="has-text-grey-lighter">
                 <strong className="has-text-grey-lighter">Jam Wheel</strong> is created by{' '}
                 <a href="https://github.com/mavho/Jam-Wheel">Maverick Ho</a>. This site is still
