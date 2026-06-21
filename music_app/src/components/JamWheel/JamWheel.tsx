@@ -3,6 +3,7 @@
 import {P5Canvas, type Sketch, type SketchProps} from '@p5-wrapper/react';
 import {Column, Div} from 'trunx';
 import KeyNote from './KeyNotes';
+import p5 from 'p5';
 
 export type JamWheelProps = SketchProps & {
   canvasColor: number;
@@ -41,6 +42,8 @@ const sketch: Sketch<JamWheelProps> = p5 => {
 
   // Keynote array
   let keyWheels: KeyNote[] = [];
+  //
+  let pressedKey: KeyNote | null = null;
 
   // adjust how many triangles are available
   const points = 10;
@@ -56,27 +59,14 @@ const sketch: Sketch<JamWheelProps> = p5 => {
     let _canvas = p5.createCanvas(canvasWidth, canvasHeight, p5.P2D);
     circenterX = _canvas.width / 2;
     circenterY = _canvas.height / 2;
-    p5.frameRate(30);
+    // p5.frameRate(30);
     initKeys();
+    p5.noLoop();
+    p5.redraw();
   };
 
   p5.draw = () => {
     p5.background(canvasColor);
-    // var r = 150;
-    // p5.noFill();
-    // p5.stroke(197, 185, 166);
-    // p5.strokeWeight(5);
-    // let envelope = 400;
-    // for (var i = 0; i < 3; i++) {
-    //   let x2 = (r + envelope * 200) * p5.tan((2 * p5.PI) / envelope);
-    //   let y2 = (r + envelope * 200) * p5.tan((2 * p5.PI) / envelope);
-    //   p5.ellipse(circenterX, circenterY, x2, y2);
-    // }
-    // //TODO: make more efficient.
-    // // playIncomingNotes();
-
-    // p5.stroke('#003680');
-    // p5.strokeWeight(2);
     for (let i = 0; i < keyWheels.length; i++) {
       keyWheels[i].show();
     }
@@ -88,6 +78,7 @@ const sketch: Sketch<JamWheelProps> = p5 => {
     circenterY = canvasHeight / 2;
     p5.resizeCanvas(canvasWidth, canvasHeight);
     repositionKeys();
+    p5.redraw();
   };
 
   function getAvailableWidth(el: HTMLElement) {
@@ -100,7 +91,7 @@ const sketch: Sketch<JamWheelProps> = p5 => {
     let keyPositions: Position[] = calculateKeyPositions();
     keyPositions.forEach((position, i) => {
       // these positions can be played around with for some cool logos
-      const tri = new KeyNote(p5, position, HEX_COLOR_WHEEL[i]);
+      const tri = new KeyNote(p5, position, p5.color(HEX_COLOR_WHEEL[i]));
       keyWheels.push(tri);
     });
   }
@@ -133,6 +124,38 @@ const sketch: Sketch<JamWheelProps> = p5 => {
     }
     return res;
   }
+
+  // mouse handlers
+  p5.mousePressed = () => {
+    for (let key of keyWheels) {
+      if (key.inTriangle(p5.mouseX, p5.mouseY)) {
+        pressedKey = key;
+        pressedKey.clicked();
+        break;
+      }
+    }
+    p5.redraw();
+  };
+
+  p5.mouseDragged = () => {
+    for (let key of keyWheels) {
+      if (key.inTriangle(p5.mouseX, p5.mouseY)) {
+        if (key !== pressedKey) {
+          pressedKey?.released();
+          pressedKey = key;
+        }
+
+        pressedKey.clicked();
+        break;
+      }
+    }
+    p5.redraw();
+  };
+
+  p5.mouseReleased = () => {
+    pressedKey?.released();
+    p5.redraw();
+  };
 };
 
 export function JamWheel() {

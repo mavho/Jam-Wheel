@@ -563,6 +563,11 @@
   dependencies:
     undici-types "~7.18.0"
 
+"@types/p5@^1.7.7":
+  version "1.7.7"
+  resolved "https://registry.yarnpkg.com/@types/p5/-/p5-1.7.7.tgz#ea11485c66f61948964be44a0b0df56d4e12e6cb"
+  integrity sha512-WFuP7jqc5CkkMtCK/NphgvMnJz1Qi9CMuK7t6xLu/tuXkRdGQA4q4AD0dUYcChC0Oibe8PE8gbKSFPNF0BqVNw==
+
 "@types/react-dom@^19.2.3":
   version "19.2.3"
   resolved "https://registry.npmjs.org/@types/react-dom/-/react-dom-19.2.3.tgz"
