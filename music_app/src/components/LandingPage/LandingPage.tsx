@@ -1,5 +1,5 @@
 import type {Bulma} from 'trunx';
-import {Section, Div, Columns, Column, Input, Span} from 'trunx';
+import {Div, Columns, Column, Input, Span} from 'trunx';
 import './LandingPage.scss';
 import {useState} from 'react';
 import type {Session} from '../../App';
