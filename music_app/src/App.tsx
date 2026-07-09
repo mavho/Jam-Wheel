@@ -3,8 +3,9 @@ import {useState} from 'react';
 import './App.scss';
 import LandingPage from './components/LandingPage/LandingPage';
 import Banner from './components/TitleBanner/TitleBanner';
-import {Section} from 'trunx';
+import {Button, Section} from 'trunx';
 import {JamWheel} from './components/JamWheel/JamWheel';
+import {useSynth} from './hooks/useSynth';
 
 export interface Session {
   username: string;
@@ -13,16 +14,26 @@ export interface Session {
 }
 
 function App() {
-  const [session, setSession] = useState<Session | null>({
-    username: 'hello',
-    roomId: 'hello',
-    sessionId: 'hello',
-  });
-  console.log(session);
+  const [session, setSession] = useState<Session | null>(null);
+
+  const {isStarted, startAudio, bufferRef} = useSynth();
+
+  const _setSession = async () => {
+    console.log('set audio');
+    await startAudio(); // unlocks audio context from this click
+    console.log('set session');
+    setSession({
+      username: 'hello',
+      roomId: 'hello',
+      sessionId: 'hello',
+    });
+  };
+
   return (
     <Section id="container" bulma={['is-widescreen', 'is-fullwidth', 'has-background-black']}>
-      {session ? (
-        <JamWheel />
+      <Button onClick={_setSession}>start audio</Button>
+      {session && isStarted ? (
+        <JamWheel bufferRef={bufferRef} canvasColor={0} />
       ) : (
         <>
           <Banner />

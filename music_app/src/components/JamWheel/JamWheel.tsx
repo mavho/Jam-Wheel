@@ -3,10 +3,11 @@
 import {P5Canvas, type Sketch, type SketchProps} from '@p5-wrapper/react';
 import {Column, Div} from 'trunx';
 import KeyNote from './KeyNotes';
-import p5 from 'p5';
+import * as Tone from 'tone';
 
 export type JamWheelProps = SketchProps & {
   canvasColor: number;
+  bufferRef: React.RefObject<Tone.ToneAudioBuffers | null>;
 };
 export type Position = {
   x1: number;
@@ -29,6 +30,7 @@ const HEX_COLOR_WHEEL: string[] = [
   '#3EC600',
   '#A3C200',
 ];
+
 const sketch: Sketch<JamWheelProps> = p5 => {
   let canvasColor: number = 0;
   // center of the wheel
@@ -49,8 +51,13 @@ const sketch: Sketch<JamWheelProps> = p5 => {
   const points = 10;
   const pointAngle = 360 / points;
 
+  let players: Tone.Player[] = [];
+
+  let bufferRef: Tone.ToneAudioBuffers | null = null;
+
   p5.updateWithProps = props => {
     canvasColor = props.canvasColor;
+    bufferRef = props.bufferRef.current;
   };
 
   p5.setup = () => {
@@ -91,8 +98,14 @@ const sketch: Sketch<JamWheelProps> = p5 => {
     let keyPositions: Position[] = calculateKeyPositions();
     keyPositions.forEach((position, i) => {
       // these positions can be played around with for some cool logos
-      const tri = new KeyNote(p5, position, p5.color(HEX_COLOR_WHEEL[i]));
+      const tri = new KeyNote(p5, position, p5.color(HEX_COLOR_WHEEL[i]), i);
       keyWheels.push(tri);
+      const player = new Tone.Player(bufferRef?.get(`A${i}`)).toDestination();
+      // maybe find a better way for looping this
+      player.loop = true;
+      player.loopStart = 0;
+      player.loopEnd = 2.2;
+      players.push(player);
     });
   }
 
@@ -125,12 +138,19 @@ const sketch: Sketch<JamWheelProps> = p5 => {
     return res;
   }
 
+  const handlePlayPressedKey = () => {
+    const player = pressedKey && players[pressedKey.index];
+    if (player && player.state !== 'started') {
+      players[pressedKey!.index].start();
+    }
+  };
   // mouse handlers
   p5.mousePressed = () => {
     for (let key of keyWheels) {
       if (key.inTriangle(p5.mouseX, p5.mouseY)) {
         pressedKey = key;
         pressedKey.clicked();
+        handlePlayPressedKey();
         break;
       }
     }
@@ -141,7 +161,7 @@ const sketch: Sketch<JamWheelProps> = p5 => {
     for (let key of keyWheels) {
       if (key.inTriangle(p5.mouseX, p5.mouseY)) {
         if (key !== pressedKey) {
-          pressedKey?.released();
+          handleReleasePressedKey();
           pressedKey = key;
         }
 
@@ -149,20 +169,28 @@ const sketch: Sketch<JamWheelProps> = p5 => {
         break;
       }
     }
+    handlePlayPressedKey();
     p5.redraw();
   };
 
-  p5.mouseReleased = () => {
+  const handleReleasePressedKey = () => {
     pressedKey?.released();
+    if (pressedKey) {
+      players[pressedKey!.index].stop();
+    }
+  };
+
+  p5.mouseReleased = () => {
+    handleReleasePressedKey();
     p5.redraw();
   };
 };
 
-export function JamWheel() {
+export function JamWheel(props: JamWheelProps) {
   return (
     <Column>
       <Div bulma={'box'} id="sketch">
-        <P5Canvas sketch={sketch} />
+        <P5Canvas sketch={sketch} bufferRef={props.bufferRef} />
       </Div>
     </Column>
   );

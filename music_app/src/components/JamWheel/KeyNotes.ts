@@ -9,6 +9,7 @@ import type p5 from 'p5';
  */
 class KeyNote {
   p5: P5CanvasInstance<JamWheelProps>;
+  index!: number;
   position!: Position;
   x1!: number;
   y1!: number;
@@ -24,7 +25,8 @@ class KeyNote {
   constructor(
     p5: P5CanvasInstance<JamWheelProps>,
     position: Position,
-    inColor: p5.Color = p5.color('#E1008E')
+    inColor: p5.Color = p5.color('#E1008E'),
+    index: number
   ) {
     this.p5 = p5;
     this.resize(position);
@@ -32,6 +34,7 @@ class KeyNote {
     this.currColor = inColor;
     this.click = false;
     this.shadeColor = this.p5.color(72, 61, 139);
+    this.index = index;
   }
 
   /**
