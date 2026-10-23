@@ -1,4 +1,4 @@
-import { Hero, Container, HeroBody } from 'trunx'
+import {Hero, Container, HeroBody} from 'trunx';
 
 function Banner() {
   return (
@@ -15,7 +15,7 @@ function Banner() {
         </Container>
       </HeroBody>
     </Hero>
-  )
+  );
 }
 
-export default Banner
+export default Banner;
