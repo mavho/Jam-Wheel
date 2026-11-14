@@ -9,7 +9,12 @@ Cargo.lock
 */templates/_includes/debug.html
 # Node modules
 package-lock.json
-node-modules/
+node_modules/
 # dev p5
 p5/
 
+# make file sentinel
+out/
+
+# music app public files
+music_app/public/
