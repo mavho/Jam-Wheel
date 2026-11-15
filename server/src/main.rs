@@ -1,7 +1,9 @@
 //Arc threadsafe reference-counting pointer
-use std::{collections::HashMap, convert::Infallible, sync::Arc};
+use std::{collections::HashMap, convert::Infallible, sync::Arc,env};
 use tokio::sync::{mpsc, RwLock};
 use warp:: {ws::Message, Filter, Rejection};
+use config::{Config,File};
+use std::net::SocketAddr;
 use ws::KeyNoteRequest;
 mod handlers;
 mod ws;
@@ -30,16 +32,20 @@ type Result<T> = std::result:: Result<T,Rejection>;
 #[tokio::main]
 //on the eventloop
 async fn main(){
-    //Sets dev configuration or prod. Dev is either true or false
-    let dev: bool = match std::env::var("DEV"){
-        Ok(v) => v.parse::<bool>().unwrap(),
-        Err(_e)=> false 
-    };
+    let environment = env::var("ENV").unwrap_or_else(|_| "dev".into());
+    
+    let configs = Config::builder()
+        .add_source(File::with_name(&format!("configs/{environment}.toml")))
+        .build().unwrap();
 
-    let port: u16 = match std::env::var("PORT"){
-        Ok(v) => v.parse::<u16>().unwrap(),
-        Err(_e)=> 8000
-    };
+    // Print out our settings (as a HashMap)
+    println!(
+        "{:?}",
+        configs.clone()
+            .try_deserialize::<HashMap<String, String>>()
+            .unwrap()
+    );
+
     //Creates a threadsafe hashmap of clients
     let clients: Clients = Arc::new(RwLock::new(HashMap::new()));
 
@@ -48,18 +54,12 @@ async fn main(){
     let index = warp::get().and(warp::path::end())
         .and(warp::fs::file(format!("{}/templates/_layouts/index.html",WEB_FOLDER)));
 
-    /*
-    let templates = warp::get().anWEB_FOLDERd(warp::path!("templates"))
-        .and(warp::fs::dir(format!("{}/templates/_includes/",WEB_FOLDER)));
-    */
-
     let js =  warp::get().and(warp::path!("static"))
         .and(warp::fs::dir(format!("{}/static/js/",WEB_FOLDER)));
 
     let node_modules = warp::get().and(warp::path!("node_modules"))
         .and(warp::fs::dir(format!("{}/node_modules/",NODE_MOD_FOLDER)));
 
-    
 
     let static_site = index.or(js).or(html_content).or(node_modules);
 
@@ -95,22 +95,16 @@ async fn main(){
         .or(ws_route)
         .with(warp::cors().allow_any_origin());
 
-    println!("Starting Server");
+    let port:u16 = configs.get_int("port").unwrap().try_into().unwrap();
+    let host:String = configs.get_string("host").unwrap();
 
-    if dev{
-        println!("Dev configuration detected");
-        //use our dev config
-        warp::serve(routes)
-            .tls()
-            .cert_path("auth/cert.pem")
-            .key_path("auth/key.rsa")
-            .run(([0,0,0,0],port)).await;
-    }else{
-        println!("Heroku configuration detected");
-        //Heroku wraps https for our application
-        warp::serve(routes)
-            .run(([0,0,0,0],port)).await;
-    }
+    let addr: SocketAddr = format!("{}:{}", host, port)
+    .parse()
+    .expect("invalid host/port in config");
+
+    println!("Starting Server");
+    warp::serve(routes).run(addr).await;
+        
 }
 //Extracts the clients data. Return a filter matching any route and composes the filter with a function
 fn with_clients(clients: Clients) -> impl Filter<Extract = (Clients,),Error = Infallible> + Clone {
