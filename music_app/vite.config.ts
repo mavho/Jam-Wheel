@@ -6,10 +6,10 @@ import babel from '@rolldown/plugin-babel';
 export default defineConfig({
   plugins: [react(), babel({presets: [reactCompilerPreset()]})],
   server: {
-    allowedHosts: ['sgvmcloud'],
+    allowedHosts: ['localhost'],
     proxy: {
       '/register': {
-        target: 'https://sgvmcloud:8000',
+        target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
       },
